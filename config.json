@@ -1,0 +1,16 @@
+{
+  "$schema": "./config.schema.json",
+  "channels": {
+    "slack:YOUR_WORKSPACE_ID/YOUR_CHANNEL_ID": {
+      "workingDirectory": "/path/to/your/project",
+      "command": "claude",
+      "sessionTTL": 14400000,
+      "skipPermissions": true
+    }
+  },
+  "defaults": {
+    "command": "claude",
+    "sessionTTL": 14400000,
+    "skipPermissions": false
+  }
+}

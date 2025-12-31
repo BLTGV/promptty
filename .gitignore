@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+mcp-server/node_modules/
+
+# Build output
+dist/
+mcp-server/dist/
+
+# Data
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+coverage/
