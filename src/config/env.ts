@@ -1,7 +1,6 @@
 import { z } from 'zod';
-import { config as loadDotenv } from 'dotenv';
 
-loadDotenv();
+// Bun automatically loads .env files
 
 const envSchema = z.object({
   // Slack

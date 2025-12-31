@@ -47,10 +47,16 @@ export async function initSlackApp(): Promise<App | null> {
     logLevel: env.LOG_LEVEL === 'debug' ? LogLevel.DEBUG : LogLevel.INFO,
   });
 
-  // Handle direct messages and mentions
-  app.message(async ({ message, client, say }) => {
+  // Handle direct messages and channel messages (but not @mentions, those go to app_mention)
+  app.message(async ({ message, client, say, context: slackContext }) => {
     // Only handle user messages (not bot messages)
     if (message.subtype || !('text' in message) || !message.text) {
+      return;
+    }
+
+    // Skip messages that @mention the bot - those are handled by app_mention event
+    const botUserId = slackContext.botUserId;
+    if (botUserId && message.text.includes(`<@${botUserId}>`)) {
       return;
     }
 

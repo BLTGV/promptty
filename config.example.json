@@ -1,0 +1,28 @@
+{
+  "$schema": "./config.schema.json",
+  "channels": {
+    "slack:T0123456789/C0123456789": {
+      "workingDirectory": "/Users/you/projects/your-project",
+      "command": "claude",
+      "sessionTTL": 14400000,
+      "skipPermissions": true
+    },
+    "slack:T0123456789/C9876543210": {
+      "workingDirectory": "/Users/you/projects/another-project",
+      "command": "claude",
+      "systemPrompt": "You are helping with a Node.js backend. Focus on TypeScript best practices.",
+      "allowedTools": ["Bash(npm *)", "Bash(git *)", "Read(*)", "Write(src/**)"],
+      "skipPermissions": false
+    },
+    "teams:tenant-guid-here/19:channel-id@thread.tacv2": {
+      "workingDirectory": "/Users/you/projects/teams-project",
+      "command": "claude",
+      "skipPermissions": true
+    }
+  },
+  "defaults": {
+    "command": "claude",
+    "sessionTTL": 14400000,
+    "skipPermissions": false
+  }
+}

@@ -1,6 +1,8 @@
 # Dependencies
 node_modules/
 mcp-server/node_modules/
+bun.lock
+mcp-server/bun.lock
 
 # Build output
 dist/
@@ -16,6 +18,9 @@ data/
 .env
 .env.local
 .env.*.local
+
+# Config (may contain sensitive paths)
+config.json
 
 # IDE
 .vscode/
@@ -33,3 +38,6 @@ logs/
 
 # Test coverage
 coverage/
+
+# Test working directory
+test-directory/

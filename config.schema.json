@@ -1,0 +1,123 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Promptty Configuration",
+  "description": "Configuration for Promptty Slack/Teams to Claude Code bridge",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "slack": {
+      "type": "object",
+      "description": "Slack credentials (can also use environment variables)",
+      "properties": {
+        "appToken": {
+          "type": "string",
+          "description": "Slack app-level token (xapp-...)"
+        },
+        "botToken": {
+          "type": "string",
+          "description": "Slack bot token (xoxb-...)"
+        },
+        "signingSecret": {
+          "type": "string",
+          "description": "Slack signing secret"
+        }
+      }
+    },
+    "teams": {
+      "type": "object",
+      "description": "Teams credentials (can also use environment variables)",
+      "properties": {
+        "appId": {
+          "type": "string",
+          "description": "Teams bot app ID"
+        },
+        "appPassword": {
+          "type": "string",
+          "description": "Teams bot password"
+        }
+      }
+    },
+    "channels": {
+      "type": "object",
+      "description": "Channel configurations. Keys are 'platform:workspaceId/channelId'",
+      "additionalProperties": {
+        "$ref": "#/definitions/channelConfig"
+      }
+    },
+    "defaults": {
+      "$ref": "#/definitions/channelConfigPartial",
+      "description": "Default settings for channels not explicitly configured"
+    }
+  },
+  "required": ["channels"],
+  "definitions": {
+    "channelConfig": {
+      "type": "object",
+      "properties": {
+        "workingDirectory": {
+          "type": "string",
+          "description": "Absolute path where Claude Code will run"
+        },
+        "command": {
+          "type": "string",
+          "default": "claude",
+          "description": "LLM CLI command to run"
+        },
+        "systemPrompt": {
+          "type": "string",
+          "description": "Optional system prompt prepended to user messages"
+        },
+        "sessionTTL": {
+          "type": "number",
+          "default": 14400000,
+          "description": "Session timeout in milliseconds (default: 4 hours)"
+        },
+        "allowedTools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Pre-approved tools with optional patterns, e.g. ['Bash(*)', 'Read(src/**)']"
+        },
+        "skipPermissions": {
+          "type": "boolean",
+          "default": false,
+          "description": "Skip all permission prompts (--dangerously-skip-permissions)"
+        }
+      },
+      "required": ["workingDirectory"]
+    },
+    "channelConfigPartial": {
+      "type": "object",
+      "properties": {
+        "workingDirectory": {
+          "type": "string"
+        },
+        "command": {
+          "type": "string",
+          "default": "claude"
+        },
+        "systemPrompt": {
+          "type": "string"
+        },
+        "sessionTTL": {
+          "type": "number",
+          "default": 14400000
+        },
+        "allowedTools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "skipPermissions": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    }
+  }
+}
