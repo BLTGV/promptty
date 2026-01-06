@@ -1,14 +1,16 @@
 {
   "name": "promptty",
-  "version": "0.1.0",
-  "description": "Slack/Teams to LLM CLI bridge",
+  "version": "0.2.0",
+  "description": "Slack/Teams to Claude Code bridge with response filtering and cross-channel messaging",
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
     "start": "bun run src/index.ts",
     "dev": "bun --watch src/index.ts",
     "build": "bun build src/index.ts --outdir dist --target bun",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check-setup": "./scripts/check-setup.sh",
+    "install-plugin": "./scripts/install-plugin.sh"
   },
   "dependencies": {
     "@slack/bolt": "^4.1.0",

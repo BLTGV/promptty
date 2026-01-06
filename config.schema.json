@@ -54,6 +54,41 @@
   },
   "required": ["channels"],
   "definitions": {
+    "responseFilter": {
+      "type": "object",
+      "description": "Controls which messages promptty responds to",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["all", "mentions", "keywords", "regex", "threads", "none"],
+          "default": "mentions",
+          "description": "Filter mode: 'all' (respond to everything), 'mentions' (only @mentions), 'keywords' (keyword triggers), 'regex' (pattern matching), 'threads' (only in threads), 'none' (disabled)"
+        },
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Keywords that trigger a response (for 'keywords' mode)"
+        },
+        "patterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Regex patterns that trigger a response (for 'regex' mode)"
+        },
+        "allowDMs": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to respond to direct messages regardless of filter mode"
+        },
+        "combineModes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["mentions", "keywords", "regex", "threads"]
+          },
+          "description": "Combine multiple filter modes with OR logic"
+        }
+      }
+    },
     "channelConfig": {
       "type": "object",
       "properties": {
@@ -86,6 +121,10 @@
           "type": "boolean",
           "default": false,
           "description": "Skip all permission prompts (--dangerously-skip-permissions)"
+        },
+        "responseFilter": {
+          "$ref": "#/definitions/responseFilter",
+          "description": "Controls which messages promptty responds to in this channel"
         }
       },
       "required": ["workingDirectory"]
@@ -116,6 +155,9 @@
         "skipPermissions": {
           "type": "boolean",
           "default": false
+        },
+        "responseFilter": {
+          "$ref": "#/definitions/responseFilter"
         }
       }
     }

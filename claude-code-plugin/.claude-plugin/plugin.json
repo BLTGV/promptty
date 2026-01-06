@@ -1,0 +1,10 @@
+{
+  "name": "promptty",
+  "version": "0.2.0",
+  "description": "Claude Code integration for Promptty - Slack/Teams to Claude Code bridge. Enables sending updates to chat channels and managing channel configuration.",
+  "author": {
+    "name": "Promptty"
+  },
+  "repository": "https://github.com/anthropics/promptty",
+  "license": "MIT"
+}

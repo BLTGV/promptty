@@ -5,24 +5,63 @@
       "workingDirectory": "/Users/you/projects/your-project",
       "command": "claude",
       "sessionTTL": 14400000,
-      "skipPermissions": true
+      "skipPermissions": true,
+      "responseFilter": {
+        "mode": "mentions",
+        "allowDMs": true
+      }
     },
     "slack:T0123456789/C9876543210": {
       "workingDirectory": "/Users/you/projects/another-project",
       "command": "claude",
       "systemPrompt": "You are helping with a Node.js backend. Focus on TypeScript best practices.",
       "allowedTools": ["Bash(npm *)", "Bash(git *)", "Read(*)", "Write(src/**)"],
-      "skipPermissions": false
+      "skipPermissions": false,
+      "responseFilter": {
+        "mode": "keywords",
+        "keywords": ["claude", "help", "fix", "review"],
+        "allowDMs": true
+      }
+    },
+    "slack:T0123456789/CALERTS": {
+      "workingDirectory": "/Users/you/projects/alerts",
+      "responseFilter": {
+        "mode": "regex",
+        "patterns": ["^(ERROR|ALERT):", "urgent"],
+        "allowDMs": false
+      }
+    },
+    "slack:T0123456789/CTHREADS": {
+      "workingDirectory": "/Users/you/projects/discussions",
+      "responseFilter": {
+        "mode": "threads",
+        "allowDMs": true
+      }
+    },
+    "slack:T0123456789/CMULTI": {
+      "workingDirectory": "/Users/you/projects/multi",
+      "responseFilter": {
+        "combineModes": ["mentions", "keywords"],
+        "keywords": ["deploy", "release"],
+        "allowDMs": true
+      }
     },
     "teams:tenant-guid-here/19:channel-id@thread.tacv2": {
       "workingDirectory": "/Users/you/projects/teams-project",
       "command": "claude",
-      "skipPermissions": true
+      "skipPermissions": true,
+      "responseFilter": {
+        "mode": "mentions"
+      }
     }
   },
   "defaults": {
     "command": "claude",
     "sessionTTL": 14400000,
-    "skipPermissions": false
+    "skipPermissions": false,
+    "responseFilter": {
+      "mode": "mentions",
+      "allowDMs": true
+    }
   }
 }

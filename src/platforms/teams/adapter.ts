@@ -8,6 +8,7 @@ import {
 } from 'botbuilder';
 import { env } from '../../config/env.js';
 import { loadConfig, getChannelConfig } from '../../config/loader.js';
+import { shouldRespondToMessage, type MessageFilterContext } from '../../config/types.js';
 import { getOrCreateSession, updateClaudeSessionId, logMessage } from '../../db/sessions.js';
 import { executor } from '../../llm/executor.js';
 import { formatAcknowledgement, formatResponse, formatError, formatProgress, type AdaptiveCard } from '../../formatters/teams.js';
@@ -68,6 +69,10 @@ async function handleMessage(context: TurnContext): Promise<void> {
     return;
   }
 
+  // Check if bot was mentioned
+  const isMention = text.includes('<at>') ||
+    (context.activity.entities?.some(e => e.type === 'mention' && e.mentioned?.id === context.activity.recipient.id) ?? false);
+
   // Remove bot mention if present
   const cleanedText = text.replace(/<at>.*?<\/at>/g, '').trim();
 
@@ -80,7 +85,12 @@ async function handleMessage(context: TurnContext): Promise<void> {
   const channelId = context.activity.channelId ?? 'unknown';
   const conversationId = context.activity.conversation.id;
 
-  logger.info({ tenantId, channelId, textLength: cleanedText.length }, 'Received Teams message');
+  // Determine if this is a DM (personal conversation type)
+  const isDM = context.activity.conversation.conversationType === 'personal';
+  // Teams threads are indicated by replyToId
+  const isThread = context.activity.replyToId !== undefined;
+
+  logger.debug({ tenantId, channelId, isDM, isThread, isMention }, 'Received Teams message');
 
   // Get channel configuration
   const channelConfig = getChannelConfig({
@@ -90,10 +100,30 @@ async function handleMessage(context: TurnContext): Promise<void> {
   });
 
   if (!channelConfig) {
-    logger.warn({ tenantId, channelId }, 'No configuration for this channel');
-    await context.sendActivity('This channel is not configured. Please add it to the config.json file.');
+    if (!isDM) {
+      logger.debug({ tenantId, channelId }, 'No configuration for this channel, ignoring');
+    }
     return;
   }
+
+  // Apply response filter
+  const filterContext: MessageFilterContext = {
+    text: cleanedText,
+    isMention,
+    isDM,
+    isThread,
+  };
+
+  if (!shouldRespondToMessage(channelConfig.responseFilter, filterContext)) {
+    logger.debug({ channelId, filterMode: channelConfig.responseFilter?.mode }, 'Message filtered out');
+    return;
+  }
+
+  logger.info({ tenantId, channelId, textLength: cleanedText.length }, 'Processing Teams message');
+
+  // Store conversation reference for potential cross-channel messaging
+  const conversationReference = TurnContext.getConversationReference(context.activity);
+  storeConversationReference(conversationId, conversationReference);
 
   // Get or create session
   const session = getOrCreateSession(
@@ -257,6 +287,95 @@ export async function sendTeamsUpdate(
     logger.error({ error, sessionId }, 'Failed to send Teams update');
     return false;
   }
+}
+
+// Cross-channel messaging interfaces
+export interface ChannelTarget {
+  platform: 'slack' | 'teams';
+  channelId: string;
+  workspaceId?: string;
+  message: string;
+  threadTs?: string;
+}
+
+export interface SendMessageResult {
+  success: boolean;
+  messageId?: string;
+  threadTs?: string;
+  error?: string;
+}
+
+// Store conversation references for cross-channel messaging
+const conversationReferences = new Map<string, Partial<ConversationReference>>();
+
+export function storeConversationReference(channelId: string, reference: Partial<ConversationReference>): void {
+  conversationReferences.set(channelId, reference);
+}
+
+// Cross-channel messaging for Teams
+export async function sendTeamsToChannel(target: ChannelTarget): Promise<SendMessageResult> {
+  if (!adapter) {
+    return { success: false, error: 'Teams adapter not initialized' };
+  }
+
+  // Get stored conversation reference for this channel
+  const reference = conversationReferences.get(target.channelId);
+  if (!reference) {
+    return { success: false, error: 'No conversation reference for channel - the bot must first receive a message from this channel' };
+  }
+
+  try {
+    let messageId: string | undefined;
+    const card = formatProgress(target.message, 'progress');
+
+    await adapter.continueConversation(
+      reference,
+      async (turnContext) => {
+        const response = await turnContext.sendActivity({
+          attachments: [CardFactory.adaptiveCard(card)],
+        });
+        messageId = response?.id;
+      }
+    );
+
+    return {
+      success: true,
+      messageId,
+    };
+  } catch (error) {
+    logger.error({ error, channelId: target.channelId }, 'Failed to send cross-channel Teams message');
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+// Get list of Teams channels - Teams API requires specific permissions
+export interface ChannelInfo {
+  platform: 'slack' | 'teams';
+  channelId: string;
+  name?: string;
+  workspaceId?: string;
+  configured: boolean;
+}
+
+export async function getTeamsChannels(): Promise<ChannelInfo[]> {
+  // Teams doesn't have a simple channel listing API like Slack
+  // Return channels from stored conversation references
+  const channels: ChannelInfo[] = [];
+
+  for (const [channelId, ref] of conversationReferences.entries()) {
+    channels.push({
+      platform: 'teams',
+      channelId,
+      name: (ref.conversation as { name?: string })?.name ?? channelId,
+      workspaceId: ref.conversation?.tenantId,
+      configured: false,
+    });
+  }
+
+  return channels;
 }
 
 export { adapter };

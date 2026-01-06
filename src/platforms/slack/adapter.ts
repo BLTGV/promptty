@@ -1,6 +1,7 @@
 import { App, LogLevel } from '@slack/bolt';
 import { env } from '../../config/env.js';
 import { loadConfig, getChannelConfig } from '../../config/loader.js';
+import { shouldRespondToMessage, type MessageFilterContext } from '../../config/types.js';
 import { getOrCreateSession, updateClaudeSessionId, logMessage } from '../../db/sessions.js';
 import { executor } from '../../llm/executor.js';
 import { formatAcknowledgement, formatResponse, formatError, formatIntermediateUpdate } from '../../formatters/slack.js';
@@ -66,7 +67,11 @@ export async function initSlackApp(): Promise<App | null> {
     const userId = message.user ?? 'unknown';
     const text = message.text;
 
-    logger.info({ channelId, threadTs, userId, textLength: text.length }, 'Received Slack message');
+    // Determine if this is a DM (channel starts with D) or thread
+    const isDM = channelId.startsWith('D');
+    const isThread = 'thread_ts' in message && message.thread_ts !== undefined;
+
+    logger.debug({ channelId, threadTs, userId, isDM, isThread }, 'Received Slack message');
 
     // Get channel configuration
     const channelConfig = getChannelConfig({
@@ -76,13 +81,28 @@ export async function initSlackApp(): Promise<App | null> {
     });
 
     if (!channelConfig) {
-      logger.warn({ channelId, workspaceId }, 'No configuration for this channel');
-      await say({
-        text: ':warning: This channel is not configured. Please add it to the config.json file.',
-        thread_ts: threadTs,
-      });
+      // Only warn in non-DM channels - DMs without config are silently ignored
+      if (!isDM) {
+        logger.debug({ channelId, workspaceId }, 'No configuration for this channel, ignoring');
+      }
       return;
     }
+
+    // Apply response filter
+    const filterContext: MessageFilterContext = {
+      text,
+      isMention: false, // Not a mention - those go to app_mention
+      isDM,
+      isThread,
+      botUserId,
+    };
+
+    if (!shouldRespondToMessage(channelConfig.responseFilter, filterContext)) {
+      logger.debug({ channelId, filterMode: channelConfig.responseFilter?.mode }, 'Message filtered out');
+      return;
+    }
+
+    logger.info({ channelId, threadTs, userId, textLength: text.length }, 'Processing Slack message');
 
     // Get or create session
     const session = getOrCreateSession(
@@ -189,8 +209,9 @@ export async function initSlackApp(): Promise<App | null> {
 
     // Process like a regular message - create a synthetic message event
     const workspaceId = (await client.auth.test()).team_id ?? 'unknown';
+    const isThread = event.thread_ts !== undefined;
 
-    logger.info({ channelId: event.channel, text: text.substring(0, 50) }, 'Received app mention');
+    logger.debug({ channelId: event.channel, isThread }, 'Received app mention');
 
     const channelConfig = getChannelConfig({
       platform: 'slack',
@@ -199,12 +220,24 @@ export async function initSlackApp(): Promise<App | null> {
     });
 
     if (!channelConfig) {
-      await say({
-        text: ':warning: This channel is not configured.',
-        thread_ts: event.ts,
-      });
+      logger.debug({ channelId: event.channel, workspaceId }, 'No configuration for this channel');
       return;
     }
+
+    // Apply response filter - mentions are always treated as mentions
+    const filterContext: MessageFilterContext = {
+      text,
+      isMention: true,
+      isDM: false, // Mentions in DMs would go to the message handler
+      isThread,
+    };
+
+    if (!shouldRespondToMessage(channelConfig.responseFilter, filterContext)) {
+      logger.debug({ channelId: event.channel, filterMode: channelConfig.responseFilter?.mode }, 'Mention filtered out');
+      return;
+    }
+
+    logger.info({ channelId: event.channel, textLength: text.length }, 'Processing app mention');
 
     const session = getOrCreateSession(
       {
@@ -322,6 +355,87 @@ export async function sendSlackUpdate(
   } catch (error) {
     logger.error({ error, sessionId }, 'Failed to send Slack update');
     return false;
+  }
+}
+
+// Cross-channel messaging - send to any Slack channel
+export interface ChannelTarget {
+  platform: 'slack' | 'teams';
+  channelId: string;
+  workspaceId?: string;
+  message: string;
+  threadTs?: string;
+}
+
+export interface SendMessageResult {
+  success: boolean;
+  messageId?: string;
+  threadTs?: string;
+  error?: string;
+}
+
+export async function sendSlackToChannel(target: ChannelTarget): Promise<SendMessageResult> {
+  if (!app) {
+    return { success: false, error: 'Slack app not initialized' };
+  }
+
+  try {
+    const formatted = formatIntermediateUpdate(target.message, 'progress');
+    const result = await app.client.chat.postMessage({
+      channel: target.channelId,
+      text: formatted.text,
+      blocks: formatted.blocks as never[],
+      thread_ts: target.threadTs,
+    });
+
+    return {
+      success: true,
+      messageId: result.ts,
+      threadTs: target.threadTs ?? result.ts,
+    };
+  } catch (error) {
+    logger.error({ error, channelId: target.channelId }, 'Failed to send cross-channel Slack message');
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+// Get list of Slack channels the bot has access to
+export interface ChannelInfo {
+  platform: 'slack' | 'teams';
+  channelId: string;
+  name?: string;
+  workspaceId?: string;
+  configured: boolean;
+}
+
+export async function getSlackChannels(): Promise<ChannelInfo[]> {
+  if (!app) {
+    return [];
+  }
+
+  try {
+    const result = await app.client.conversations.list({
+      types: 'public_channel,private_channel,im',
+      exclude_archived: true,
+      limit: 100,
+    });
+
+    const authTest = await app.client.auth.test();
+    const workspaceId = authTest.team_id ?? 'unknown';
+
+    return (result.channels ?? []).map(ch => ({
+      platform: 'slack' as const,
+      channelId: ch.id ?? '',
+      name: ch.name ?? ch.id,
+      workspaceId,
+      configured: false,  // Will be updated by router
+    }));
+  } catch (error) {
+    logger.debug({ error }, 'Could not list Slack channels');
+    return [];
   }
 }
 

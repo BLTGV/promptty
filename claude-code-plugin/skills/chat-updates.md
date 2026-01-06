@@ -1,29 +1,43 @@
+---
+name: Chat Channel Updates
+description: Send progress updates to Slack/Teams chat channels during long-running tasks
+---
+
 # Chat Channel Updates
 
-> **Note**: This skill is also available in the Claude Code plugin at `claude-code-plugin/skills/`.
-
-You can send progress updates to the user's chat channel during long-running tasks using the Promptty MCP tools.
+When running via Promptty, you can send progress updates to the user's chat channel during long-running tasks using the MCP tools.
 
 ## Available Tools
 
 ### post_update
 Send a message to the current conversation thread.
 
-```
+```javascript
 post_update(message="Your progress message here", type="progress")
 ```
+
+**Types:**
+- `progress` (default) - General progress updates
+- `warning` - Something unexpected but non-blocking
+- `success` - A milestone was achieved
+- `error` - Something went wrong but you're handling it
 
 ### send_message
 Send a message to a different channel or outside the current thread.
 
-```
-send_message(platform="slack", channel_id="C0123456789", message="Cross-channel update")
+```javascript
+send_message(
+  platform="slack",
+  channel_id="C0123456789",
+  message="Cross-channel update",
+  thread_ts="optional-thread-timestamp"
+)
 ```
 
 ### list_channels
 List available channels you can send messages to.
 
-```
+```javascript
 list_channels()
 ```
 
@@ -42,13 +56,6 @@ list_channels()
 - Internal reasoning steps
 - Very frequent updates (wait at least 30 seconds between updates)
 
-## Update Types
-
-- `progress` (default) - General progress updates
-- `warning` - Something unexpected but non-blocking
-- `success` - A milestone was achieved
-- `error` - Something went wrong but you're handling it
-
 ## Examples
 
 ```javascript
@@ -56,7 +63,7 @@ list_channels()
 post_update(message="Found 23 test files. Running test suite now...", type="progress")
 
 // Share a finding immediately
-post_update(message="Found the bug in src/auth.ts:142. Fixing now.", type="progress")
+post_update(message="Found the bug in src/auth.ts:142 - incorrect token validation. Fixing now.", type="progress")
 
 // Warning about something
 post_update(message="Package.json has outdated dependencies. Will update as part of fix.", type="warning")
@@ -68,7 +75,7 @@ post_update(message="All 47 tests passing. PR ready for review.", type="success"
 post_update(message="Build failed on first attempt. Retrying with clean cache.", type="error")
 
 // Cross-channel notification
-send_message(platform="slack", channel_id="C0ALERTS", message="Deployment completed successfully")
+send_message(platform="slack", channel_id="C0ALERTS", message="Deployment to staging completed successfully")
 ```
 
 ## Guidelines

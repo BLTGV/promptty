@@ -1,0 +1,10 @@
+{
+  "promptty": {
+    "command": "bun",
+    "args": ["${CLAUDE_PLUGIN_ROOT}/../mcp-server/index.ts"],
+    "env": {
+      "PROMPTTY_SESSION_ID": "${PROMPTTY_SESSION_ID}",
+      "PROMPTTY_CALLBACK_URL": "${PROMPTTY_CALLBACK_URL:-http://127.0.0.1:3001}"
+    }
+  }
+}
