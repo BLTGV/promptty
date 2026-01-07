@@ -297,6 +297,8 @@ export class ClaudeExecutor {
     }
 
     // Add allowed tools (pre-approved tools)
+    // TODO: When skipPermissions is true, consider not passing --allowedTools
+    // since --dangerously-skip-permissions should allow all tools anyway
     const tools = options.allowedTools ?? DEFAULT_ALLOWED_TOOLS;
     if (tools.length > 0) {
       args.push('--allowedTools', tools.join(','));
