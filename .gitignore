@@ -1,8 +1,6 @@
 # Dependencies
 node_modules/
 mcp-server/node_modules/
-bun.lock
-mcp-server/bun.lock
 
 # Build output
 dist/
