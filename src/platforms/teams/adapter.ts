@@ -13,6 +13,7 @@ import { getOrCreateSession, updateClaudeSessionId, logMessage } from '../../db/
 import { executor } from '../../llm/executor.js';
 import { formatAcknowledgement, formatResponse, formatError, formatProgress, type AdaptiveCard } from '../../formatters/teams.js';
 import { createChildLogger } from '../../utils/logger.js';
+import type { MessageContext } from '../../llm/types.js';
 
 const logger = createChildLogger('teams');
 
@@ -154,6 +155,24 @@ async function handleMessage(context: TurnContext): Promise<void> {
   };
   activeContexts.set(session.id, teamsContext);
 
+  // Get user name from activity
+  const userName = context.activity.from?.name;
+  const userId = context.activity.from?.id ?? 'unknown';
+  const channelName = context.activity.channelData?.channel?.name;
+
+  // Build message context for Claude
+  const messageContext: MessageContext = {
+    platform: 'teams',
+    workspaceId: tenantId,
+    channelId: conversationId,
+    channelName,
+    threadId: context.activity.conversation.id,
+    userId,
+    userName,
+    isDM,
+    isThread,
+  };
+
   try {
     // Send typing indicator
     await context.sendActivities([{ type: ActivityTypes.Typing }]);
@@ -163,6 +182,7 @@ async function handleMessage(context: TurnContext): Promise<void> {
       workingDirectory: channelConfig.workingDirectory,
       sessionId: session.claudeSessionId ?? undefined,
       systemPrompt: channelConfig.systemPrompt,
+      messageContext,
       allowedTools: channelConfig.allowedTools,
       skipPermissions: channelConfig.skipPermissions,
     });

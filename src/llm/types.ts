@@ -1,7 +1,21 @@
+export interface MessageContext {
+  platform: 'slack' | 'teams';
+  workspaceId: string;
+  workspaceName?: string;
+  channelId: string;
+  channelName?: string;
+  threadId?: string;
+  userId: string;
+  userName?: string;
+  isDM: boolean;
+  isThread: boolean;
+}
+
 export interface ExecuteOptions {
   workingDirectory: string;
   sessionId?: string;
   systemPrompt?: string;
+  messageContext?: MessageContext;
   allowedTools?: string[];
   skipPermissions?: boolean;
   timeout?: number;

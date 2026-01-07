@@ -6,7 +6,7 @@ import { getOrCreateSession, updateClaudeSessionId, logMessage } from '../../db/
 import { executor } from '../../llm/executor.js';
 import { formatAcknowledgement, formatResponse, formatError, formatIntermediateUpdate } from '../../formatters/slack.js';
 import { createChildLogger } from '../../utils/logger.js';
-import type { OutputEvent } from '../../llm/types.js';
+import type { OutputEvent, MessageContext } from '../../llm/types.js';
 
 const logger = createChildLogger('slack');
 
@@ -164,12 +164,40 @@ export async function initSlackApp(): Promise<App | null> {
     };
     activeContexts.set(session.id, context);
 
+    // Try to get user and channel info for context
+    let userName: string | undefined;
+    let channelName: string | undefined;
+    try {
+      const [userInfo, channelInfo] = await Promise.all([
+        client.users.info({ user: userId }).catch(() => null),
+        isDM ? null : client.conversations.info({ channel: channelId }).catch(() => null),
+      ]);
+      userName = userInfo?.user?.real_name ?? userInfo?.user?.name;
+      channelName = channelInfo?.channel?.name;
+    } catch {
+      // Ignore - names are optional
+    }
+
+    // Build message context for Claude
+    const messageContext: MessageContext = {
+      platform: 'slack',
+      workspaceId,
+      channelId,
+      channelName,
+      threadId: threadTs,
+      userId,
+      userName,
+      isDM,
+      isThread,
+    };
+
     try {
       // Execute Claude Code
       const result = await executor.execute(text, {
         workingDirectory: channelConfig.workingDirectory,
         sessionId: session.claudeSessionId ?? undefined,
         systemPrompt: channelConfig.systemPrompt,
+        messageContext,
         allowedTools: channelConfig.allowedTools,
         skipPermissions: channelConfig.skipPermissions,
         onUpdate: (event: OutputEvent) => {
@@ -293,11 +321,39 @@ export async function initSlackApp(): Promise<App | null> {
     };
     activeContexts.set(session.id, context);
 
+    // Try to get user and channel info for context
+    let userName: string | undefined;
+    let channelName: string | undefined;
+    try {
+      const [userInfo, channelInfo] = await Promise.all([
+        client.users.info({ user: event.user }).catch(() => null),
+        client.conversations.info({ channel: event.channel }).catch(() => null),
+      ]);
+      userName = userInfo?.user?.real_name ?? userInfo?.user?.name;
+      channelName = channelInfo?.channel?.name;
+    } catch {
+      // Ignore - names are optional
+    }
+
+    // Build message context for Claude
+    const messageContext: MessageContext = {
+      platform: 'slack',
+      workspaceId,
+      channelId: event.channel,
+      channelName,
+      threadId: event.thread_ts ?? event.ts,
+      userId: event.user,
+      userName,
+      isDM: false,
+      isThread,
+    };
+
     try {
       const result = await executor.execute(text, {
         workingDirectory: channelConfig.workingDirectory,
         sessionId: session.claudeSessionId ?? undefined,
         systemPrompt: channelConfig.systemPrompt,
+        messageContext,
         allowedTools: channelConfig.allowedTools,
         skipPermissions: channelConfig.skipPermissions,
       });

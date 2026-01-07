@@ -1,5 +1,5 @@
 import { spawn, type Subprocess } from 'bun';
-import type { ExecuteOptions, ExecuteResult, OutputEvent } from './types.js';
+import type { ExecuteOptions, ExecuteResult, OutputEvent, MessageContext } from './types.js';
 import { parseStreamLine, extractFinalResult } from './parser.js';
 import { createChildLogger } from '../utils/logger.js';
 
@@ -7,6 +7,54 @@ const logger = createChildLogger('executor');
 
 const DEFAULT_TIMEOUT = 600000; // 10 minutes
 const DEFAULT_ALLOWED_TOOLS = ['Bash', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'WebSearch', 'WebFetch'];
+
+/**
+ * Build a context string that informs Claude about the conversation source
+ */
+function buildContextPrompt(ctx: MessageContext): string {
+  const lines: string[] = [
+    '## Conversation Context',
+    '',
+    `You are responding to a message from ${ctx.platform === 'slack' ? 'Slack' : 'Microsoft Teams'}.`,
+    '',
+  ];
+
+  // Location info
+  if (ctx.isDM) {
+    lines.push(`- **Type**: Direct message`);
+  } else {
+    const channelDisplay = ctx.channelName ? `#${ctx.channelName}` : ctx.channelId;
+    lines.push(`- **Channel**: ${channelDisplay}`);
+    if (ctx.isThread) {
+      lines.push(`- **Thread**: Yes (responding in thread ${ctx.threadId})`);
+    }
+  }
+
+  // Workspace info
+  const workspaceDisplay = ctx.workspaceName ?? ctx.workspaceId;
+  lines.push(`- **Workspace**: ${workspaceDisplay}`);
+
+  // User info
+  const userDisplay = ctx.userName ? `${ctx.userName} (${ctx.userId})` : ctx.userId;
+  lines.push(`- **From**: ${userDisplay}`);
+
+  // IDs for MCP tools
+  lines.push('');
+  lines.push('### For MCP Tools');
+  lines.push(`- Platform: \`${ctx.platform}\``);
+  lines.push(`- Channel ID: \`${ctx.channelId}\``);
+  lines.push(`- Workspace ID: \`${ctx.workspaceId}\``);
+  if (ctx.threadId) {
+    lines.push(`- Thread ID: \`${ctx.threadId}\``);
+  }
+
+  lines.push('');
+  lines.push('Use `post_update` to send progress messages to this conversation.');
+  lines.push('Use `send_message` to send messages to other channels if needed.');
+  lines.push('');
+
+  return lines.join('\n');
+}
 
 export class ClaudeExecutor {
   private activeProcesses: Map<string, Subprocess> = new Map();
@@ -173,9 +221,19 @@ export class ClaudeExecutor {
       args.push('--dangerously-skip-permissions');
     }
 
-    // Add system prompt if provided
+    // Build combined system prompt with context + custom prompt
+    const systemPromptParts: string[] = [];
+
+    if (options.messageContext) {
+      systemPromptParts.push(buildContextPrompt(options.messageContext));
+    }
+
     if (options.systemPrompt) {
-      args.push('--system-prompt', options.systemPrompt);
+      systemPromptParts.push(options.systemPrompt);
+    }
+
+    if (systemPromptParts.length > 0) {
+      args.push('--system-prompt', systemPromptParts.join('\n'));
     }
 
     return args;
