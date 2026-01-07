@@ -121,6 +121,7 @@ async function handleMessage(context: TurnContext): Promise<void> {
   }
 
   logger.info({ tenantId, channelId, textLength: cleanedText.length }, 'Processing Teams message');
+  logger.debug({ text: cleanedText.substring(0, 500) }, 'Message content');
 
   // Store conversation reference for potential cross-channel messaging
   const conversationReference = TurnContext.getConversationReference(context.activity);
@@ -196,6 +197,12 @@ async function handleMessage(context: TurnContext): Promise<void> {
     const responseCard = result.success
       ? formatResponse(result.output, result.duration)
       : formatError(result.error ?? result.output);
+
+    logger.debug({
+      success: result.success,
+      outputLength: result.output.length,
+      preview: result.output.substring(0, 200),
+    }, 'Claude response to send');
 
     // Update the acknowledgement message or send new message
     if (ackActivity?.id) {

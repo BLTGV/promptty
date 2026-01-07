@@ -109,6 +109,14 @@ export class ClaudeExecutor {
       prompt: prompt.substring(0, 100) + (prompt.length > 100 ? '...' : ''),
     }, 'Starting Claude Code execution');
 
+    // Log full prompt details at debug level
+    logger.debug({
+      prompt: prompt.substring(0, 500) + (prompt.length > 500 ? '...' : ''),
+      promptLength: prompt.length,
+      hasSystemPrompt: !!options.systemPrompt,
+      hasMessageContext: !!options.messageContext,
+    }, 'Full execution prompt');
+
     const proc = spawn({
       cmd: ['claude', ...args],
       cwd: options.workingDirectory,
@@ -150,6 +158,37 @@ export class ClaudeExecutor {
             const event = parseStreamLine(line);
             if (event) {
               events.push(event);
+
+              // Log events by type for debugging
+              if (event.type === 'assistant') {
+                for (const block of event.message.message.content) {
+                  if (block.type === 'tool_use') {
+                    logger.debug({
+                      tool: block.name,
+                      toolId: block.id,
+                      input: JSON.stringify(block.input).substring(0, 300),
+                    }, 'Claude tool call');
+                  } else if (block.type === 'tool_result') {
+                    logger.debug({
+                      toolId: block.tool_use_id,
+                      resultLength: block.content.length,
+                    }, 'Tool result');
+                  } else if (block.type === 'text') {
+                    logger.debug({
+                      textLength: block.text.length,
+                      preview: block.text.substring(0, 100),
+                    }, 'Claude text response');
+                  }
+                }
+              } else if (event.type === 'result') {
+                logger.info({
+                  isError: event.is_error,
+                  numTurns: event.num_turns,
+                  costUsd: event.cost_usd,
+                  durationMs: event.duration_ms,
+                }, 'Claude execution result');
+              }
+
               if (options.onUpdate) {
                 options.onUpdate(event);
               }

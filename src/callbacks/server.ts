@@ -44,11 +44,11 @@ export function startCallbackServer(port: number = env.CALLBACK_PORT): ReturnTyp
             return Response.json({ error: 'Missing session_id or message' }, { status: 400 });
           }
 
-          logger.debug({
+          logger.info({
             sessionId: payload.session_id,
-            type: payload.type,
-            messageLength: payload.message.length,
-          }, 'Received callback');
+            type: payload.type ?? 'progress',
+            message: payload.message.substring(0, 200),
+          }, 'MCP callback received');
 
           const success = await sendUpdate(
             payload.session_id,
@@ -57,8 +57,13 @@ export function startCallbackServer(port: number = env.CALLBACK_PORT): ReturnTyp
           );
 
           if (success) {
+            logger.info({
+              sessionId: payload.session_id,
+              type: payload.type ?? 'progress',
+            }, 'MCP callback delivered');
             return Response.json({ success: true });
           } else {
+            logger.warn({ sessionId: payload.session_id }, 'MCP callback failed - session not found');
             return Response.json({ error: 'Session not found or inactive' }, { status: 404 });
           }
         } catch (error) {
@@ -76,12 +81,12 @@ export function startCallbackServer(port: number = env.CALLBACK_PORT): ReturnTyp
             return Response.json({ error: 'Missing required fields' }, { status: 400 });
           }
 
-          logger.debug({
+          logger.info({
             sessionId: payload.session_id,
             platform: payload.platform,
             channelId: payload.channel_id,
-            messageLength: payload.message.length,
-          }, 'Received cross-channel message');
+            message: payload.message.substring(0, 200),
+          }, 'Cross-channel message received');
 
           const result = await sendToChannel({
             platform: payload.platform,
@@ -92,12 +97,22 @@ export function startCallbackServer(port: number = env.CALLBACK_PORT): ReturnTyp
           });
 
           if (result.success) {
+            logger.info({
+              platform: payload.platform,
+              channelId: payload.channel_id,
+              messageId: result.messageId,
+            }, 'Cross-channel message delivered');
             return Response.json({
               success: true,
               messageId: result.messageId,
               threadTs: result.threadTs,
             });
           } else {
+            logger.warn({
+              platform: payload.platform,
+              channelId: payload.channel_id,
+              error: result.error,
+            }, 'Cross-channel message failed');
             return Response.json({ error: result.error ?? 'Failed to send message' }, { status: 400 });
           }
         } catch (error) {

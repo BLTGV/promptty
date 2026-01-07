@@ -129,6 +129,7 @@ export async function initSlackApp(): Promise<App | null> {
     }
 
     logger.info({ channelId, threadTs, userId, textLength: text.length }, 'Processing Slack message');
+    logger.debug({ text: text.substring(0, 500) }, 'Message content');
 
     // Get or create session
     const session = getOrCreateSession(
@@ -218,6 +219,12 @@ export async function initSlackApp(): Promise<App | null> {
         ? formatResponse(result.output, result.duration)
         : formatError(result.error ?? result.output);
 
+      logger.debug({
+        success: result.success,
+        outputLength: result.output.length,
+        preview: result.output.substring(0, 200),
+      }, 'Claude response to send');
+
       // Update the acknowledgement message with the response
       if (ackTs) {
         await client.chat.update({
@@ -292,6 +299,7 @@ export async function initSlackApp(): Promise<App | null> {
     }
 
     logger.info({ channelId: event.channel, textLength: text.length }, 'Processing app mention');
+    logger.debug({ text: text.substring(0, 500) }, 'Mention content');
 
     const session = getOrCreateSession(
       {
@@ -365,6 +373,12 @@ export async function initSlackApp(): Promise<App | null> {
       const response = result.success
         ? formatResponse(result.output, result.duration)
         : formatError(result.error ?? result.output);
+
+      logger.debug({
+        success: result.success,
+        outputLength: result.output.length,
+        preview: result.output.substring(0, 200),
+      }, 'Claude response to send');
 
       if (ackResponse.ts) {
         await client.chat.update({
