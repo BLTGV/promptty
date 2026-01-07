@@ -38,19 +38,56 @@ function buildContextPrompt(ctx: MessageContext): string {
   const userDisplay = ctx.userName ? `${ctx.userName} (${ctx.userId})` : ctx.userId;
   lines.push(`- **From**: ${userDisplay}`);
 
-  // IDs for MCP tools
+  // Message formatting guidance
   lines.push('');
-  lines.push('### For MCP Tools');
+  lines.push('### Message Formatting');
+  if (ctx.platform === 'slack') {
+    lines.push('Format your responses using Slack mrkdwn syntax:');
+    lines.push('- Bold: `*bold*`');
+    lines.push('- Italic: `_italic_`');
+    lines.push('- Strikethrough: `~strike~`');
+    lines.push('- Code: `` `code` `` or ` ```code block``` `');
+    lines.push('- Links: `<https://example.com|link text>`');
+    lines.push('- Lists: Start lines with `•` or `1.`');
+    lines.push('- Blockquote: Start lines with `>`');
+    lines.push('- Emoji: `:emoji_name:` (e.g., `:white_check_mark:`, `:warning:`, `:rocket:`)');
+  } else {
+    lines.push('Format your responses using Teams markdown:');
+    lines.push('- Bold: `**bold**`');
+    lines.push('- Italic: `_italic_`');
+    lines.push('- Code: `` `code` `` or ` ```code block``` `');
+    lines.push('- Links: `[link text](https://example.com)`');
+    lines.push('- Lists: Start lines with `-` or `1.`');
+    lines.push('- Blockquote: Start lines with `>`');
+  }
+
+  // MCP Tools guidance
+  lines.push('');
+  lines.push('### Promptty MCP Tools');
+  lines.push('');
+  lines.push('You have access to these tools for communicating back to chat:');
+  lines.push('');
+  lines.push('**`post_update`** - Send progress updates to the current conversation');
+  lines.push('- Use for long-running tasks to keep users informed');
+  lines.push('- Types: `progress`, `warning`, `success`, `error`');
+  lines.push('- Example: "Running tests..." or "Deployment complete!"');
+  lines.push('');
+  lines.push('**`list_channels`** - Discover available channels');
+  lines.push('- Call this first if you need to send a message to another channel');
+  lines.push('- Returns channel IDs, names, and platform info');
+  lines.push('');
+  lines.push('**`send_message`** - Send a message to a specific channel');
+  lines.push('- Requires: `platform`, `channel_id`, `message`');
+  lines.push('- Optional: `thread_ts` (for threading), `workspace_id`');
+  lines.push('- Use `list_channels` first to find the correct channel_id');
+  lines.push('');
+  lines.push('Current conversation IDs (for reference):');
   lines.push(`- Platform: \`${ctx.platform}\``);
   lines.push(`- Channel ID: \`${ctx.channelId}\``);
   lines.push(`- Workspace ID: \`${ctx.workspaceId}\``);
   if (ctx.threadId) {
     lines.push(`- Thread ID: \`${ctx.threadId}\``);
   }
-
-  lines.push('');
-  lines.push('Use `post_update` to send progress messages to this conversation.');
-  lines.push('Use `send_message` to send messages to other channels if needed.');
   lines.push('');
 
   return lines.join('\n');
