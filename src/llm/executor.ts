@@ -128,7 +128,7 @@ export class ClaudeExecutor {
       cwd: options.workingDirectory,
       env: {
         ...process.env,
-        PROMPTTY_SESSION_ID: options.sessionId ?? '',
+        PROMPTTY_SESSION_ID: options.prompttySessionId ?? '',
       },
       stdout: 'pipe',
       stderr: 'pipe',

@@ -13,7 +13,8 @@ export interface MessageContext {
 
 export interface ExecuteOptions {
   workingDirectory: string;
-  sessionId?: string;
+  sessionId?: string;  // Claude Code session ID for --resume
+  prompttySessionId?: string;  // Promptty session ID for MCP callbacks
   systemPrompt?: string;
   messageContext?: MessageContext;
   allowedTools?: string[];

@@ -182,6 +182,7 @@ async function handleMessage(context: TurnContext): Promise<void> {
     const result = await executor.execute(cleanedText, {
       workingDirectory: channelConfig.workingDirectory,
       sessionId: session.claudeSessionId ?? undefined,
+      prompttySessionId: session.id,  // For MCP callbacks
       systemPrompt: channelConfig.systemPrompt,
       messageContext,
       allowedTools: channelConfig.allowedTools,

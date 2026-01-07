@@ -197,6 +197,7 @@ export async function initSlackApp(): Promise<App | null> {
       const result = await executor.execute(text, {
         workingDirectory: channelConfig.workingDirectory,
         sessionId: session.claudeSessionId ?? undefined,
+        prompttySessionId: session.id,  // For MCP callbacks
         systemPrompt: channelConfig.systemPrompt,
         messageContext,
         allowedTools: channelConfig.allowedTools,
@@ -360,6 +361,7 @@ export async function initSlackApp(): Promise<App | null> {
       const result = await executor.execute(text, {
         workingDirectory: channelConfig.workingDirectory,
         sessionId: session.claudeSessionId ?? undefined,
+        prompttySessionId: session.id,  // For MCP callbacks
         systemPrompt: channelConfig.systemPrompt,
         messageContext,
         allowedTools: channelConfig.allowedTools,
