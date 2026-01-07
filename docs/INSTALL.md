@@ -14,6 +14,9 @@ cd promptty && bun install
 # Link globally (optional but recommended)
 bun link
 
+# Ensure ~/.bun/bin is in PATH (if not already)
+export PATH="$HOME/.bun/bin:$PATH"
+
 # Initialize an instance
 promptty init my-workspace
 # Follow interactive prompts for Slack credentials
@@ -65,6 +68,13 @@ Link the CLI globally to use `promptty` command from anywhere:
 ```bash
 cd promptty
 bun link
+```
+
+Ensure `~/.bun/bin` is in your PATH:
+```bash
+# Add to ~/.bashrc or ~/.zshrc if not already present
+echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
 ```
 
 After linking, you can use:
