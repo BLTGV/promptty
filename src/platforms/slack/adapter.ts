@@ -74,18 +74,44 @@ export async function initSlackApp(): Promise<App | null> {
     logger.debug({ channelId, threadTs, userId, isDM, isThread }, 'Received Slack message');
 
     // Get channel configuration
-    const channelConfig = getChannelConfig({
+    let channelConfig = getChannelConfig({
       platform: 'slack',
       workspaceId,
       channelId,
     });
 
     if (!channelConfig) {
-      // Only warn in non-DM channels - DMs without config are silently ignored
-      if (!isDM) {
+      // For DMs, check if defaults allow DMs
+      if (isDM) {
+        const config = loadConfig();
+        const defaultFilter = config.defaults?.responseFilter;
+        const allowDMs = defaultFilter?.allowDMs ?? true; // Default to true for backward compat
+
+        if (!allowDMs) {
+          logger.debug({ channelId }, 'DMs disabled in defaults, ignoring');
+          return;
+        }
+
+        // Use defaults for DM if available
+        if (config.defaults?.workingDirectory) {
+          channelConfig = {
+            workingDirectory: config.defaults.workingDirectory,
+            command: config.defaults.command ?? 'claude',
+            sessionTTL: config.defaults.sessionTTL ?? 14400000,
+            systemPrompt: config.defaults.systemPrompt,
+            allowedTools: config.defaults.allowedTools,
+            skipPermissions: config.defaults.skipPermissions,
+            responseFilter: config.defaults.responseFilter,
+          };
+          logger.debug({ channelId }, 'Using defaults for DM');
+        } else {
+          logger.debug({ channelId }, 'No defaults configured for DMs, ignoring');
+          return;
+        }
+      } else {
         logger.debug({ channelId, workspaceId }, 'No configuration for this channel, ignoring');
+        return;
       }
-      return;
     }
 
     // Apply response filter

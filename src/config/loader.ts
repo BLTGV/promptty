@@ -71,3 +71,11 @@ export function reloadConfig(): void {
   cachedConfig = null;
   loadConfig();
 }
+
+/**
+ * Reset the config cache without reloading
+ * Useful when changing instances
+ */
+export function resetConfigCache(): void {
+  cachedConfig = null;
+}
