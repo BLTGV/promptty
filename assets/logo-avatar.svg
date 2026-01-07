@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="128" height="128" fill="#0a2540"/>
+
+  <!-- Chat bubble -->
+  <path d="M 20 24
+           L 108 24
+           Q 116 24 116 32
+           L 116 80
+           Q 116 88 108 88
+           L 44 88
+           L 28 104
+           L 28 88
+           L 20 88
+           Q 12 88 12 80
+           L 12 32
+           Q 12 24 20 24 Z"
+        fill="#ffffff"/>
+
+  <!-- Prompt symbol > -->
+  <path d="M 40 42 L 76 58 L 40 74 L 40 64 L 60 58 L 40 52 Z" fill="#00d084"/>
+
+  <!-- Cursor blinking line -->
+  <rect x="82" y="48" width="4" height="20" fill="#0a2540" opacity="0.7"/>
+</svg>

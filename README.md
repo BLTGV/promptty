@@ -1,4 +1,6 @@
-# Promptty
+<p align="center">
+  <img src="assets/logo-text.svg" alt="Promptty" width="300">
+</p>
 
 A bridge application that connects Slack and MS Teams with terminal-based LLM interfaces (Claude Code) running locally.
 
