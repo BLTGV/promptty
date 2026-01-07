@@ -97,6 +97,12 @@ function buildContextPrompt(ctx: MessageContext): string {
   }
   lines.push('');
 
+  // Tool usage guidance
+  lines.push('### Tool Usage');
+  lines.push('');
+  lines.push('You have permission to use all available tools without asking. Do not ask for permission to use MCP tools - just use them directly to complete the task.');
+  lines.push('');
+
   return lines.join('\n');
 }
 
