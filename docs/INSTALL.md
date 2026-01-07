@@ -131,9 +131,7 @@ After installation, you can tab-complete:
 1. Go to https://api.slack.com/apps
 2. Click **Create New App** → **From an app manifest**
 3. Select your workspace
-4. Choose YAML or JSON format and paste the contents of:
-   - `slack-app-manifest.yaml` (YAML format), or
-   - `slack-app-manifest.json` (JSON format)
+4. Paste the contents of `slack-app-manifest.json`
 5. Review the configuration and click **Create**
 
 ### Option B: Manual Setup

@@ -48,7 +48,7 @@ cp .env.example .env
 ```
 
 **For Slack:**
-1. Create a Slack app at https://api.slack.com/apps using `slack-app-manifest.yaml` (or `.json`)
+1. Create a Slack app at https://api.slack.com/apps using `slack-app-manifest.json`
    - Click "Create New App" → "From an app manifest"
    - Select workspace and paste the manifest
 2. Create an App-Level Token: Basic Information → App-Level Tokens → Generate (scope: `connections:write`)
