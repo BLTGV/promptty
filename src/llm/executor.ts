@@ -123,11 +123,14 @@ export class ClaudeExecutor {
       hasMessageContext: !!options.messageContext,
     }, 'Full execution prompt');
 
+    // IMPORTANT: Claude Code discovers MCP servers from the working directory's .mcp.json
+    // The workingDirectory MUST be where .mcp.json is located for MCP tools to be available
     const proc = spawn({
       cmd: ['claude', ...args],
       cwd: options.workingDirectory,
       env: {
         ...process.env,
+        // This session ID is used by the MCP server to route callbacks to the correct chat thread
         PROMPTTY_SESSION_ID: options.prompttySessionId ?? '',
       },
       stdout: 'pipe',

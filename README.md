@@ -122,40 +122,97 @@ Each channel entry in `config.json`:
 }
 ```
 
-## Callback System (Intermediate Updates)
+## MCP Tools (Chat Integration)
 
-Claude Code can send intermediate updates back to the chat channel using the MCP server.
+Claude Code can send messages back to chat channels and post progress updates using the Promptty MCP server.
+
+### Available MCP Tools
+
+- **`mcp__promptty__post_update`** - Send progress updates to the current conversation thread
+- **`mcp__promptty__send_message`** - Send messages to any configured channel
+- **`mcp__promptty__list_channels`** - List available channels
 
 ### Setting Up MCP Server
 
-1. Configure Claude Code to use the MCP server by adding to your Claude settings:
+**CRITICAL: The `workingDirectory` in your config.json MUST be the directory containing the `.mcp.json` file.** Claude Code discovers MCP servers from the working directory's `.mcp.json`.
+
+1. **Install MCP server in your project's working directory:**
+   ```bash
+   bun run src/cli/index.ts mcp install /path/to/your/project
+   ```
+
+   This creates `.mcp.json` in your project directory and enables MCP servers in Claude settings.
+
+2. **Verify your config.json workingDirectory matches:**
    ```json
    {
-     "mcpServers": {
-       "promptty": {
-         "type": "stdio",
-         "command": "bun",
-         "args": ["/path/to/promptty/mcp-server/index.ts"],
-         "env": {
-           "PROMPTTY_SESSION_ID": "",
-           "PROMPTTY_CALLBACK_URL": "http://127.0.0.1:3001"
-         }
-       }
+     "defaults": {
+       "workingDirectory": "/path/to/your/project"
      }
    }
    ```
 
-2. Copy the skill to your project:
+   If `workingDirectory` points to a different directory than where `.mcp.json` lives, **MCP tools will not be available**.
+
+3. **Check MCP status:**
    ```bash
-   cp -r skills/chat-updates /path/to/your/project/.claude/skills/
+   bun run src/cli/index.ts mcp status /path/to/your/project
    ```
 
-### Using Callbacks in Claude Code
+### MCP Configuration Files
 
-Once configured, Claude Code can call:
+The `mcp install` command creates:
+
+**`.mcp.json`** (in your project directory):
+```json
+{
+  "mcpServers": {
+    "promptty": {
+      "command": "bun",
+      "args": ["run", "/path/to/promptty/mcp-server/index.ts"],
+      "env": {
+        "PROMPTTY_CALLBACK_URL": "http://127.0.0.1:3001"
+      }
+    }
+  }
+}
+```
+
+**`.claude/settings.local.json`** (enables project MCP servers):
+```json
+{
+  "enableAllProjectMcpServers": true
+}
+```
+
+### Troubleshooting MCP Tools
+
+**"MCP tools aren't available"**
+1. Verify `workingDirectory` in config.json matches where `.mcp.json` is located
+2. Check `.claude/settings.local.json` has `"enableAllProjectMcpServers": true`
+3. Run `claude mcp list` from your project directory to verify the promptty server connects
+
+**"No session ID available"**
+- This is an internal error. The `PROMPTTY_SESSION_ID` env var is automatically set by Promptty when invoking Claude Code.
+
+**Callbacks not reaching chat**
+1. Verify callback server is running on the configured port (default 3001)
+2. Check `PROMPTTY_CALLBACK_URL` in `.mcp.json` matches the callback server port
+3. Look for callback logs: `LOG_LEVEL=debug bun start`
+
+### Using MCP Tools in Claude Code
+
+Once configured, Claude Code can:
 
 ```
-post_update(message="Found 23 test files, analyzing...", type="progress")
+# Post progress update to current thread
+mcp__promptty__post_update(message="Analyzing files...", type="progress")
+
+# List available channels
+mcp__promptty__list_channels()
+
+# Send to a specific channel
+mcp__promptty__send_message(platform="slack", channel_id="C0123456789", message="Hello!")
 ```
 
 Update types: `progress`, `warning`, `success`, `error`
