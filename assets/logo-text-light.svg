@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="335" height="222" viewBox="0 0 335 222" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(56, 55)">
+    <!-- Terminal window body -->
+    <path d="M 0 111 L 0 0 L 195 0 L 223 28 L 223 111 Z" fill="#ffffff"/>
+    <!-- Folded corner -->
+    <path d="M 195 0 L 195 28 L 223 28 Z" fill="#ffffff"/>
+    <!-- Prompt symbol > -->
+    <path d="M 75 30 L 130 58 L 75 86 L 75 72 L 105 58 L 75 44 Z" fill="#00d084"/>
+  </g>
+  <!-- Text: promptty -->
+  <text x="167.5" y="195" font-family="DejaVu Sans, sans-serif" font-weight="bold" font-size="42" fill="#ffffff" text-anchor="middle">promptty</text>
+</svg>

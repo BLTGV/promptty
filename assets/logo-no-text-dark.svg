@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="223" height="111" viewBox="0 0 223 111" xmlns="http://www.w3.org/2000/svg">
+  <!-- Terminal window body -->
+  <path d="M 0 111 L 0 0 L 195 0 L 223 28 L 223 111 Z" fill="#0a2540"/>
+  <!-- Folded corner -->
+  <path d="M 195 0 L 195 28 L 223 28 Z" fill="#0a2540"/>
+  <!-- Prompt symbol > -->
+  <path d="M 75 30 L 130 58 L 75 86 L 75 72 L 105 58 L 75 44 Z" fill="#00d084"/>
+</svg>
