@@ -123,6 +123,29 @@ mcpCommand
       };
 
       writeFileSync(mcpJsonPath, JSON.stringify(existingConfig, null, 2) + '\n');
+
+      // Enable project MCP servers in Claude settings
+      const claudeSettingsDir = join(dir, '.claude');
+      const claudeSettingsPath = join(claudeSettingsDir, 'settings.local.json');
+
+      if (!existsSync(claudeSettingsDir)) {
+        mkdirSync(claudeSettingsDir, { recursive: true });
+      }
+
+      // Read existing settings or create new
+      let claudeSettings: Record<string, unknown> = {};
+      if (existsSync(claudeSettingsPath)) {
+        try {
+          claudeSettings = JSON.parse(readFileSync(claudeSettingsPath, 'utf-8'));
+        } catch {
+          // Invalid JSON, start fresh
+        }
+      }
+
+      // Enable project MCP servers
+      claudeSettings.enableAllProjectMcpServers = true;
+      writeFileSync(claudeSettingsPath, JSON.stringify(claudeSettings, null, 2) + '\n');
+
       console.log(`  ✓ ${dir}`);
     }
 
@@ -189,7 +212,24 @@ mcpCommand
       try {
         const mcpConfig: McpConfig = JSON.parse(readFileSync(mcpJsonPath, 'utf-8'));
         if (mcpConfig.mcpServers?.promptty) {
-          console.log(`  ✓ ${dir}`);
+          // Check if project MCP servers are enabled
+          const claudeSettingsPath = join(dir, '.claude', 'settings.local.json');
+          let mcpEnabled = false;
+          if (existsSync(claudeSettingsPath)) {
+            try {
+              const claudeSettings = JSON.parse(readFileSync(claudeSettingsPath, 'utf-8'));
+              mcpEnabled = claudeSettings.enableAllProjectMcpServers === true;
+            } catch {
+              // Ignore
+            }
+          }
+
+          if (mcpEnabled) {
+            console.log(`  ✓ ${dir}`);
+          } else {
+            console.log(`  ⚠ ${dir} (MCP not enabled in Claude settings)`);
+            console.log(`    Run: promptty mcp install ${instance}`);
+          }
         } else {
           console.log(`  ○ ${dir} (.mcp.json exists but no promptty server)`);
         }
