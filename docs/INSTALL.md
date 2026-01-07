@@ -126,19 +126,31 @@ After installation, you can tab-complete:
 
 ## 4. Create a Slack App
 
+### Option A: Use the App Manifest (Recommended)
+
+1. Go to https://api.slack.com/apps
+2. Click **Create New App** → **From an app manifest**
+3. Select your workspace
+4. Choose YAML or JSON format and paste the contents of:
+   - `slack-app-manifest.yaml` (YAML format), or
+   - `slack-app-manifest.json` (JSON format)
+5. Review the configuration and click **Create**
+
+### Option B: Manual Setup
+
+<details>
+<summary>Click to expand manual setup instructions</summary>
+
 1. Go to https://api.slack.com/apps
 2. Click **Create New App** → **From scratch**
 3. Name it (e.g., "Promptty") and select your workspace
 
-### Enable Socket Mode
+#### Enable Socket Mode
 
 1. Go to **Settings** → **Socket Mode**
 2. Toggle **Enable Socket Mode** to On
-3. Click **Generate** to create an App-Level Token
-4. Name it (e.g., "promptty-socket") and add the `connections:write` scope
-5. Copy the token (starts with `xapp-`)
 
-### Add Bot Token Scopes
+#### Add Bot Token Scopes
 
 1. Go to **Features** → **OAuth & Permissions**
 2. Under **Bot Token Scopes**, add:
@@ -152,7 +164,7 @@ After installation, you can tab-complete:
    - `im:read` - View DM info (for DM support)
    - `users:read` - View user info
 
-### Subscribe to Events
+#### Subscribe to Events
 
 1. Go to **Features** → **Event Subscriptions**
 2. Toggle **Enable Events** to On
@@ -161,6 +173,16 @@ After installation, you can tab-complete:
    - `message.channels` - Messages in public channels
    - `message.groups` - Messages in private channels
    - `message.im` - Direct messages (for DM support)
+
+</details>
+
+### Generate App-Level Token
+
+1. Go to **Settings** → **Basic Information**
+2. Scroll to **App-Level Tokens**
+3. Click **Generate Token and Scopes**
+4. Name it (e.g., "promptty-socket") and add the `connections:write` scope
+5. Click **Generate** and copy the token (starts with `xapp-`)
 
 ### Install to Workspace
 

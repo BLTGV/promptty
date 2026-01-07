@@ -1,0 +1,81 @@
+# Slack App Manifest for Promptty
+#
+# Use this manifest to quickly create a Slack app for Promptty.
+#
+# To use:
+# 1. Go to https://api.slack.com/apps
+# 2. Click "Create New App" → "From an app manifest"
+# 3. Select your workspace
+# 4. Paste this YAML (or convert to JSON)
+# 5. Review and create
+# 6. Install to workspace
+# 7. Copy tokens to your .env file:
+#    - App-Level Token (xapp-...) from Basic Information → App-Level Tokens
+#    - Bot Token (xoxb-...) from OAuth & Permissions
+#    - Signing Secret from Basic Information
+
+display_information:
+  name: Promptty
+  description: AI assistant powered by Claude Code
+  background_color: "#4A154B"
+  long_description: |
+    Promptty bridges Slack with Claude Code, allowing you to interact with
+    an AI assistant that can read files, run commands, search the web, and
+    help with software engineering tasks directly from Slack.
+
+    Features:
+    - @mention the bot in any channel to ask questions
+    - DM the bot for private conversations
+    - Threaded conversations maintain context
+    - Progress updates for long-running tasks
+
+features:
+  app_home:
+    home_tab_enabled: true
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: false
+  bot_user:
+    display_name: Promptty
+    always_online: true
+
+oauth_config:
+  scopes:
+    bot:
+      # Core messaging
+      - chat:write              # Send messages
+      - chat:write.public       # Send to channels without joining
+
+      # Read messages
+      - app_mentions:read       # Receive @mention events
+      - channels:history        # Read public channel messages
+      - groups:history          # Read private channel messages
+      - im:history              # Read DM messages
+      - mpim:history            # Read group DM messages
+
+      # Channel/user info
+      - channels:read           # View public channel info
+      - groups:read             # View private channel info
+      - im:read                 # View DM info
+      - mpim:read               # View group DM info
+      - users:read              # View user info (names, avatars)
+
+      # Optional: for richer features
+      - reactions:write         # Add reactions to messages
+      - files:write             # Upload files (for code snippets)
+
+settings:
+  event_subscriptions:
+    bot_events:
+      - app_mention             # When someone @mentions the bot
+      - message.channels        # Messages in public channels
+      - message.groups          # Messages in private channels
+      - message.im              # Direct messages
+      - message.mpim            # Group direct messages
+      - app_home_opened         # When user opens app home
+
+  interactivity:
+    is_enabled: false           # Not using interactive components yet
+
+  org_deploy_enabled: false
+  socket_mode_enabled: true     # REQUIRED for Promptty
+  token_rotation_enabled: false

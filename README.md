@@ -48,10 +48,15 @@ cp .env.example .env
 ```
 
 **For Slack:**
-1. Create a Slack app at https://api.slack.com/apps
-2. Enable Socket Mode
-3. Add Bot Token Scopes: `chat:write`, `app_mentions:read`, `channels:history`, `im:history`
-4. Install to workspace and get tokens
+1. Create a Slack app at https://api.slack.com/apps using `slack-app-manifest.yaml` (or `.json`)
+   - Click "Create New App" → "From an app manifest"
+   - Select workspace and paste the manifest
+2. Create an App-Level Token: Basic Information → App-Level Tokens → Generate (scope: `connections:write`)
+3. Install to workspace: Install App → Install to Workspace
+4. Copy tokens to `.env`:
+   - `SLACK_APP_TOKEN` - App-Level Token (xapp-...)
+   - `SLACK_BOT_TOKEN` - Bot User OAuth Token (xoxb-...)
+   - `SLACK_SIGNING_SECRET` - Signing Secret from Basic Information
 
 **For Teams:**
 1. Register a bot at https://dev.botframework.com
