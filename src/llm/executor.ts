@@ -296,17 +296,13 @@ export class ClaudeExecutor {
       args.push('--resume', options.sessionId);
     }
 
-    // Add allowed tools (pre-approved tools)
-    // TODO: When skipPermissions is true, consider not passing --allowedTools
-    // since --dangerously-skip-permissions should allow all tools anyway
-    const tools = options.allowedTools ?? DEFAULT_ALLOWED_TOOLS;
-    if (tools.length > 0) {
-      args.push('--allowedTools', tools.join(','));
-    }
-
-    // Skip permission prompts (runs without asking for allowed tools)
+    // Skip permission prompts - allows ALL tools without prompting
     if (options.skipPermissions) {
       args.push('--dangerously-skip-permissions');
+    } else if (options.allowedTools ?? DEFAULT_ALLOWED_TOOLS.length > 0) {
+      // Only restrict tools when not skipping permissions
+      const tools = options.allowedTools ?? DEFAULT_ALLOWED_TOOLS;
+      args.push('--allowedTools', tools.join(','));
     }
 
     // Build combined system prompt with context + custom prompt
