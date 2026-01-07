@@ -2,6 +2,26 @@
 
 Complete setup guide for installing Promptty on a fresh server.
 
+## Quick Start
+
+If you already have Bun and Claude CLI installed:
+
+```bash
+# Clone and install
+git clone https://github.com/BLTGV/promptty.git
+cd promptty && bun install
+
+# Link globally (optional but recommended)
+bun link
+
+# Initialize an instance
+promptty init my-workspace
+# Follow interactive prompts for Slack credentials
+
+# Start the server
+promptty serve my-workspace
+```
+
 ## Prerequisites
 
 - Linux server (Ubuntu/Debian recommended)
@@ -36,6 +56,29 @@ claude --version
 git clone https://github.com/BLTGV/promptty.git
 cd promptty
 bun install
+```
+
+### Global CLI Installation (Optional)
+
+Link the CLI globally to use `promptty` command from anywhere:
+
+```bash
+cd promptty
+bun link
+```
+
+After linking, you can use:
+```bash
+promptty --help
+promptty init <instance>
+promptty serve <instance>
+promptty config show <instance>
+promptty service status <instance>
+```
+
+Without linking, prefix commands with `bun run src/cli/index.ts`:
+```bash
+bun run src/cli/index.ts serve <instance>
 ```
 
 ## 4. Create a Slack App
@@ -302,3 +345,27 @@ Example with keywords:
 ### Service won't start
 - Check logs: `journalctl --user -u promptty-<instance> -f`
 - Verify Bun is in PATH for systemd: may need full path in service file
+
+## Development
+
+### Running Tests
+
+```bash
+# Run all tests
+bun test
+
+# Run tests in watch mode
+bun test --watch
+
+# Run tests with coverage
+bun test --coverage
+
+# Run specific test file
+bun test src/cli/utils/instance.test.ts
+```
+
+### Type Checking
+
+```bash
+bun run typecheck
+```
