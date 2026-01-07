@@ -1,0 +1,85 @@
+---
+title: Installation
+description: How to install and set up Promptty
+---
+
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+## Prerequisites
+
+- [Bun](https://bun.sh) runtime (v1.0+)
+- Claude Code CLI installed and in your PATH
+- Slack or Microsoft Teams workspace with admin access
+
+## Installation
+
+<Steps>
+
+1. **Install Bun** (if not already installed)
+
+   ```bash
+   curl -fsSL https://bun.sh/install | bash
+   ```
+
+2. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/BLTGV/promptty.git
+   cd promptty
+   ```
+
+3. **Install dependencies**
+
+   ```bash
+   bun install
+
+   # Also install MCP server dependencies
+   cd mcp-server && bun install && cd ..
+   ```
+
+4. **Configure environment**
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Edit `.env` with your platform credentials. See [Slack Setup](/promptty/slack-setup/) or [Teams Setup](/promptty/teams-setup/) for details.
+
+5. **Configure channels**
+
+   Edit `config.json` to map channels to working directories. See [Configuration](/promptty/configuration/) for details.
+
+6. **Run Promptty**
+
+   <Tabs>
+     <TabItem label="Development">
+       ```bash
+       bun dev
+       ```
+       Runs with hot reload for development.
+     </TabItem>
+     <TabItem label="Production">
+       ```bash
+       bun start
+       ```
+       Runs in production mode.
+     </TabItem>
+   </Tabs>
+
+</Steps>
+
+## Verify Installation
+
+Check that Claude Code is available:
+
+```bash
+which claude
+```
+
+If not found, ensure Claude Code is installed and in your PATH.
+
+## Next Steps
+
+- [Configure your channels](/promptty/configuration/)
+- [Set up Slack](/promptty/slack-setup/)
+- [Set up Teams](/promptty/teams-setup/)

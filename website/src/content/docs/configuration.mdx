@@ -1,0 +1,101 @@
+---
+title: Configuration
+description: Configure Promptty channels and settings
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+## Environment Variables
+
+Create a `.env` file in the project root:
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `SLACK_APP_TOKEN` | Slack app-level token (xapp-...) | For Slack |
+| `SLACK_BOT_TOKEN` | Slack bot token (xoxb-...) | For Slack |
+| `SLACK_SIGNING_SECRET` | Slack signing secret | For Slack |
+| `TEAMS_APP_ID` | Teams bot app ID | For Teams |
+| `TEAMS_APP_PASSWORD` | Teams bot password | For Teams |
+| `LOG_LEVEL` | Log level (trace/debug/info/warn/error) | No (default: info) |
+| `DATA_DIR` | Directory for SQLite database | No (default: ./data) |
+| `CONFIG_PATH` | Path to config.json | No (default: ./config.json) |
+| `CALLBACK_PORT` | Port for callback server | No (default: 3001) |
+
+## Channel Configuration
+
+Edit `config.json` to configure channel-specific settings:
+
+```json
+{
+  "channels": {
+    "slack:T0123456789/C0123456789": {
+      "workingDirectory": "/path/to/your/project",
+      "command": "claude",
+      "sessionTTL": 14400000
+    }
+  },
+  "defaults": {
+    "command": "claude",
+    "sessionTTL": 14400000
+  }
+}
+```
+
+### Channel Configuration Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `workingDirectory` | Directory where Claude Code runs | Required |
+| `command` | Command to invoke Claude Code | `claude` |
+| `systemPrompt` | Custom system prompt for this channel | None |
+| `sessionTTL` | Session timeout in milliseconds | 14400000 (4 hours) |
+| `allowedTools` | List of allowed Claude Code tools | All tools |
+
+### Finding Channel IDs
+
+<Tabs>
+  <TabItem label="Slack">
+    1. Right-click the channel name
+    2. Select "View channel details"
+    3. Scroll to the bottom to find the Channel ID
+
+    Format: `slack:TEAM_ID/CHANNEL_ID`
+  </TabItem>
+  <TabItem label="Teams">
+    Use the Microsoft Graph API or check the URL when viewing the channel in web Teams.
+
+    Format: `teams:TEAM_ID/CHANNEL_ID`
+  </TabItem>
+</Tabs>
+
+### Example Configuration
+
+```json
+{
+  "channels": {
+    "slack:T0123456789/C0123456789": {
+      "workingDirectory": "/home/user/projects/myapp",
+      "systemPrompt": "You are helping with the MyApp codebase.",
+      "allowedTools": ["Bash", "Read", "Write", "Edit"]
+    },
+    "slack:T0123456789/C9876543210": {
+      "workingDirectory": "/home/user/projects/docs",
+      "systemPrompt": "You are a documentation assistant."
+    }
+  },
+  "defaults": {
+    "workingDirectory": "/home/user/projects",
+    "command": "claude",
+    "sessionTTL": 14400000
+  }
+}
+```
+
+## Session Persistence
+
+Promptty maintains conversation context:
+
+1. **Thread-based**: Messages in the same thread share a session
+2. **Resume support**: Uses Claude Code's `--resume` flag
+3. **Auto-expiry**: Sessions expire after TTL (default 4 hours)
+4. **SQLite storage**: Persisted to `data/promptty.db`

@@ -1,0 +1,70 @@
+---
+title: Promptty
+description: Bridge your team chat to Claude Code
+template: splash
+hero:
+  tagline: Connect Slack and Microsoft Teams to Claude Code running locally. Give your AI coding assistant a presence in your team's chat.
+  image:
+    file: ../../assets/logo.svg
+  actions:
+    - text: Get Started
+      link: /promptty/installation/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/BLTGV/promptty
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Why Promptty?
+
+Promptty bridges the gap between your team's communication platform and powerful AI coding assistants. Instead of switching between apps, your team can interact with Claude Code directly from Slack or Teams.
+
+```
+Slack/Teams → Promptty Bridge → Claude Code (local)
+                   ↑                    |
+                   └─── responses ──────┘
+```
+
+## Features
+
+<CardGrid stagger>
+  <Card title="Multi-Platform Support" icon="rocket">
+    Works with both Slack and Microsoft Teams simultaneously. Use one bot across all your team's channels.
+  </Card>
+  <Card title="Session Persistence" icon="document">
+    Maintains conversation context with `--resume` support. Thread-based sessions that expire after configurable TTL.
+  </Card>
+  <Card title="MCP Integration" icon="puzzle">
+    Claude Code can send progress updates and messages back to chat via the Promptty MCP server.
+  </Card>
+  <Card title="Per-Channel Config" icon="setting">
+    Map channels to specific working directories, system prompts, and allowed tools. Full control over each context.
+  </Card>
+  <Card title="Real-time Feedback" icon="approve-check">
+    Immediate acknowledgment when processing starts. Users know the bot is working on their request.
+  </Card>
+  <Card title="Platform Formatting" icon="pencil">
+    Automatic mrkdwn for Slack, Adaptive Cards for Teams. Responses look native on each platform.
+  </Card>
+</CardGrid>
+
+## Quick Start
+
+```bash
+# Clone and install
+git clone https://github.com/BLTGV/promptty.git
+cd promptty && bun install
+
+# Configure
+cp .env.example .env
+# Add your Slack/Teams tokens to .env
+
+# Run
+bun start
+```
+
+Ready to dive deeper? Check out the [Installation Guide](/promptty/installation/).

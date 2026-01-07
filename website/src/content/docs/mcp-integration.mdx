@@ -1,0 +1,129 @@
+---
+title: MCP Integration
+description: Use the Promptty MCP server for two-way chat communication
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+Claude Code can send messages back to chat channels and post progress updates using the Promptty MCP server.
+
+## Available MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| `mcp__promptty__post_update` | Send progress updates to the current conversation thread |
+| `mcp__promptty__send_message` | Send messages to any configured channel |
+| `mcp__promptty__list_channels` | List available channels |
+
+## Setting Up MCP Server
+
+<Aside type="caution" title="Important">
+The `workingDirectory` in your `config.json` **must** be the directory containing the `.mcp.json` file. Claude Code discovers MCP servers from the working directory's `.mcp.json`.
+</Aside>
+
+<Steps>
+
+1. **Install MCP server in your project's working directory**
+
+   ```bash
+   bun run src/cli/index.ts mcp install /path/to/your/project
+   ```
+
+   This creates `.mcp.json` in your project directory and enables MCP servers in Claude settings.
+
+2. **Verify your config.json workingDirectory matches**
+
+   ```json
+   {
+     "defaults": {
+       "workingDirectory": "/path/to/your/project"
+     }
+   }
+   ```
+
+   If `workingDirectory` points to a different directory than where `.mcp.json` lives, **MCP tools will not be available**.
+
+3. **Check MCP status**
+
+   ```bash
+   bun run src/cli/index.ts mcp status /path/to/your/project
+   ```
+
+</Steps>
+
+## MCP Configuration Files
+
+The `mcp install` command creates:
+
+### `.mcp.json` (in your project directory)
+
+```json
+{
+  "mcpServers": {
+    "promptty": {
+      "command": "bun",
+      "args": ["run", "/path/to/promptty/mcp-server/index.ts"],
+      "env": {
+        "PROMPTTY_CALLBACK_URL": "http://127.0.0.1:3001"
+      }
+    }
+  }
+}
+```
+
+### `.claude/settings.local.json`
+
+```json
+{
+  "enableAllProjectMcpServers": true
+}
+```
+
+## Using MCP Tools
+
+Once configured, Claude Code can use these tools:
+
+### Post Progress Update
+
+```javascript
+mcp__promptty__post_update(
+  message="Analyzing files...",
+  type="progress"
+)
+```
+
+Update types: `progress`, `warning`, `success`, `error`
+
+### List Channels
+
+```javascript
+mcp__promptty__list_channels()
+```
+
+### Send to Specific Channel
+
+```javascript
+mcp__promptty__send_message(
+  platform="slack",
+  channel_id="C0123456789",
+  message="Task completed!"
+)
+```
+
+## Troubleshooting MCP
+
+### "MCP tools aren't available"
+
+1. Verify `workingDirectory` in config.json matches where `.mcp.json` is located
+2. Check `.claude/settings.local.json` has `"enableAllProjectMcpServers": true`
+3. Run `claude mcp list` from your project directory to verify the promptty server connects
+
+### "No session ID available"
+
+This is an internal error. The `PROMPTTY_SESSION_ID` env var is automatically set by Promptty when invoking Claude Code.
+
+### Callbacks not reaching chat
+
+1. Verify callback server is running on the configured port (default 3001)
+2. Check `PROMPTTY_CALLBACK_URL` in `.mcp.json` matches the callback server port
+3. Look for callback logs: `LOG_LEVEL=debug bun start`

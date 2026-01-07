@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Chat bubble -->
+  <rect x="12" y="12" width="104" height="104" rx="16" ry="16" fill="#1a1f36"/>
+  <!-- Prompt symbol > (centered, bold) -->
+  <path d="M 38 38 L 90 64 L 38 90 L 38 74 L 66 64 L 38 54 Z" fill="#10b981"/>
+</svg>

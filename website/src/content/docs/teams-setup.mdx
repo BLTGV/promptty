@@ -1,0 +1,89 @@
+---
+title: Teams Setup
+description: Configure Promptty to work with Microsoft Teams
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+## Register a Bot
+
+<Steps>
+
+1. **Go to the Bot Framework Portal**
+
+   Visit [dev.botframework.com](https://dev.botframework.com)
+
+2. **Create a new bot registration**
+
+   - Click "Create a bot"
+   - Fill in the required information
+   - Note the **App ID** generated
+
+3. **Generate App Password**
+
+   - In the bot settings, generate a new password
+   - Copy it immediately (it won't be shown again)
+
+4. **Configure Messaging Endpoint**
+
+   Set the messaging endpoint to:
+   ```
+   https://your-server/api/messages
+   ```
+
+   :::note
+   Teams requires a publicly accessible HTTPS endpoint. Consider using a tunnel service like ngrok for development.
+   :::
+
+5. **Add to .env**
+
+   ```bash
+   # Teams Configuration
+   TEAMS_APP_ID=your-app-id
+   TEAMS_APP_PASSWORD=your-app-password
+   ```
+
+</Steps>
+
+## Deploy for Teams
+
+Unlike Slack's Socket Mode, Teams requires a publicly accessible endpoint. Options include:
+
+### Development (ngrok)
+
+```bash
+# In one terminal
+ngrok http 3001
+
+# Copy the https URL and set it as your messaging endpoint
+```
+
+### Production
+
+Deploy Promptty to a server with:
+- Public HTTPS endpoint
+- Valid SSL certificate
+- Port accessible from Microsoft's servers
+
+## Add to Teams
+
+1. Go to Teams Admin Center
+2. Navigate to **Apps** → **Manage Apps**
+3. Upload your bot's app package
+4. Approve the app for your organization
+
+## App Package
+
+You may need to create an app package (`.zip` file) containing:
+- `manifest.json` - App manifest
+- `color.png` - 192x192 color icon
+- `outline.png` - 32x32 outline icon
+
+See [Microsoft's documentation](https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/build-and-test/apps-package) for details.
+
+## Testing
+
+1. Start Promptty: `bun start`
+2. Ensure ngrok or your public endpoint is running
+3. Open Teams and find your bot
+4. Send a message to test

@@ -1,0 +1,102 @@
+---
+title: Slack Setup
+description: Configure Promptty to work with Slack
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+## Create a Slack App
+
+<Steps>
+
+1. **Go to the Slack API dashboard**
+
+   Visit [api.slack.com/apps](https://api.slack.com/apps)
+
+2. **Create a new app from manifest**
+
+   - Click "Create New App"
+   - Select "From an app manifest"
+   - Choose your workspace
+   - Paste the contents of `slack-app-manifest.json` from the Promptty repository
+
+3. **Generate an App-Level Token**
+
+   - Go to **Basic Information**
+   - Scroll to **App-Level Tokens**
+   - Click **Generate Token and Scopes**
+   - Name it (e.g., "socket-mode")
+   - Add the `connections:write` scope
+   - Click **Generate**
+   - Copy the token (starts with `xapp-`)
+
+4. **Install to Workspace**
+
+   - Go to **Install App**
+   - Click **Install to Workspace**
+   - Authorize the app
+
+5. **Copy Tokens to .env**
+
+   ```bash
+   # Slack Configuration
+   SLACK_APP_TOKEN=xapp-1-...    # App-Level Token from step 3
+   SLACK_BOT_TOKEN=xoxb-...      # Bot User OAuth Token from Install App page
+   SLACK_SIGNING_SECRET=...      # From Basic Information page
+   ```
+
+</Steps>
+
+## Required Scopes
+
+The Slack app manifest includes these scopes:
+
+### Bot Token Scopes
+
+| Scope | Purpose |
+|-------|---------|
+| `app_mentions:read` | Receive mentions of the bot |
+| `channels:history` | Read messages in public channels |
+| `channels:read` | View basic channel info |
+| `chat:write` | Send messages |
+| `groups:history` | Read messages in private channels |
+| `groups:read` | View basic private channel info |
+| `im:history` | Read direct messages |
+| `im:read` | View basic DM info |
+| `im:write` | Send direct messages |
+| `mpim:history` | Read group DMs |
+| `mpim:read` | View group DM info |
+
+### Event Subscriptions
+
+| Event | Purpose |
+|-------|---------|
+| `app_mention` | Trigger when bot is @mentioned |
+| `message.channels` | Receive messages in channels |
+| `message.groups` | Receive messages in private channels |
+| `message.im` | Receive direct messages |
+
+## Add Bot to Channels
+
+After installation, you need to add the bot to each channel where you want it to respond:
+
+1. Open the channel in Slack
+2. Type `/invite @YourBotName`
+3. Or click the channel name → Integrations → Add apps
+
+## Socket Mode
+
+Promptty uses Slack's Socket Mode for real-time communication. This means:
+
+- No public URL required
+- Works behind firewalls
+- Lower latency than webhooks
+
+Socket Mode is automatically configured when using the app manifest.
+
+## Testing
+
+1. Start Promptty: `bun start`
+2. Go to a channel where the bot is added
+3. Mention the bot: `@Promptty help me with this code`
+4. You should see an acknowledgment, then a response

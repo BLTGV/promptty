@@ -1,0 +1,135 @@
+---
+title: Troubleshooting
+description: Common issues and solutions for Promptty
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Slack Issues
+
+### Bot not receiving messages
+
+1. **Check Socket Mode is enabled**
+   - Go to your Slack app settings
+   - Verify Socket Mode is turned on
+
+2. **Verify bot is in the channel**
+   - The bot must be added to each channel where it should respond
+   - Use `/invite @YourBotName` to add it
+
+3. **Check token scopes**
+   - Ensure `channels:history` and `im:history` scopes are present
+   - Reinstall the app after adding new scopes
+
+### Bot not responding
+
+1. **Check logs**
+   ```bash
+   LOG_LEVEL=debug bun start
+   ```
+
+2. **Verify tokens in .env**
+   - `SLACK_APP_TOKEN` should start with `xapp-`
+   - `SLACK_BOT_TOKEN` should start with `xoxb-`
+
+## Teams Issues
+
+### Bot not receiving messages
+
+1. **Verify bot registration**
+   - Check credentials in Bot Framework portal
+   - Ensure App ID and Password are correct
+
+2. **Check messaging endpoint**
+   - Must be publicly accessible HTTPS
+   - Must point to `/api/messages`
+
+3. **Verify bot is added to team**
+   - Bot needs to be installed in the team
+   - Check Teams Admin Center for app status
+
+## Claude Code Issues
+
+### "Claude Code not found"
+
+Ensure `claude` is in your PATH:
+
+```bash
+which claude
+```
+
+If not found:
+- Install Claude Code CLI
+- Add its location to your PATH
+- Restart your terminal
+
+### Claude Code timing out
+
+1. **Check sessionTTL setting**
+   - Default is 4 hours (14400000ms)
+   - Increase if needed in config.json
+
+2. **Check system resources**
+   - Claude Code may be memory-constrained
+   - Check for other heavy processes
+
+## Session Issues
+
+### Session not persisting
+
+1. **Check working directory permissions**
+   ```bash
+   ls -la data/
+   ```
+   The `data/` directory must be writable.
+
+2. **Verify thread_ts is captured**
+   - Sessions are thread-based
+   - Check logs for session creation messages
+
+3. **Check SQLite database**
+   ```bash
+   sqlite3 data/promptty.db ".tables"
+   ```
+
+### Sessions expiring too quickly
+
+Increase `sessionTTL` in config.json:
+
+```json
+{
+  "defaults": {
+    "sessionTTL": 28800000  // 8 hours
+  }
+}
+```
+
+## MCP Issues
+
+See [MCP Integration - Troubleshooting](/promptty/mcp-integration/#troubleshooting-mcp) for MCP-specific issues.
+
+## General Debugging
+
+### Enable debug logging
+
+```bash
+LOG_LEVEL=debug bun start
+```
+
+### Check Promptty is running
+
+```bash
+curl http://localhost:3001/health
+```
+
+### View recent logs
+
+The SQLite database stores session information:
+
+```bash
+sqlite3 data/promptty.db "SELECT * FROM sessions ORDER BY created_at DESC LIMIT 10;"
+```
+
+<Aside type="tip">
+Still stuck? [Open an issue on GitHub](https://github.com/BLTGV/promptty/issues) with your logs and configuration (redact sensitive tokens).
+</Aside>
