@@ -82,8 +82,10 @@ After linking, you can use:
 promptty --help
 promptty init <instance>
 promptty serve <instance>
+promptty list
 promptty config show <instance>
 promptty service status <instance>
+promptty mcp status <instance>
 ```
 
 Without linking, prefix commands with `bun run src/cli/index.ts`:
@@ -334,6 +336,120 @@ Example with keywords:
 }
 ```
 
+## 10. MCP Server (Progress Updates)
+
+The MCP server allows Claude Code to send progress updates back to the chat during long-running tasks. This is optional but highly recommended for better user experience.
+
+### What the MCP Server Provides
+
+When installed, Claude Code gets access to these tools:
+
+| Tool | Description |
+|------|-------------|
+| `post_update` | Send progress messages to the current chat thread |
+| `send_message` | Send messages to other channels |
+| `list_channels` | List available channels |
+
+### Prerequisites
+
+1. **Working Directory Required**: The MCP server is installed per working directory. Your config must have `workingDirectory` set:
+
+```json
+{
+  "defaults": {
+    "workingDirectory": "/home/deploy/projects/default",
+    "command": "claude"
+  },
+  "channels": {
+    "slack:T123/C456": {
+      "workingDirectory": "/home/deploy/projects/specific-project"
+    }
+  }
+}
+```
+
+2. **Callback Port**: Ensure `CALLBACK_PORT` is set in your `.env` (default: `3001`):
+
+```env
+CALLBACK_PORT=3001
+```
+
+### Installing the MCP Server
+
+```bash
+# Check current status
+promptty mcp status <instance>
+
+# Install to all configured working directories
+promptty mcp install <instance>
+
+# Install with custom callback port
+promptty mcp install <instance> --callback-port 3002
+```
+
+This creates/updates `.mcp.json` in each working directory with the promptty MCP server configuration.
+
+### Verifying Installation
+
+```bash
+# Check status after installation
+promptty mcp status acme-corp
+```
+
+Expected output:
+```
+MCP server status for acme-corp:
+
+  ✓ /home/deploy/projects/default
+  ✓ /home/deploy/projects/specific-project
+```
+
+### How It Works
+
+1. When Promptty receives a message, it spawns Claude Code in the configured working directory
+2. Claude Code reads `.mcp.json` and starts the promptty MCP server
+3. During execution, Claude can call `post_update` to send progress messages
+4. Promptty's callback server receives these and posts them to the chat thread
+
+### Example Flow
+
+User asks: "Deploy the new version to production"
+
+Claude can send progress updates like:
+- "🔄 Running tests..."
+- "✅ Tests passed, building Docker image..."
+- "🚀 Deploying to production cluster..."
+- "✅ Deployment complete!"
+
+### Removing the MCP Server
+
+```bash
+# Remove from all working directories
+promptty mcp uninstall <instance>
+```
+
+This removes the `promptty` entry from `.mcp.json` files (preserves other MCP servers if configured).
+
+### Manual Configuration
+
+If you prefer manual setup, create `.mcp.json` in your working directory:
+
+```json
+{
+  "mcpServers": {
+    "promptty": {
+      "command": "/home/user/.bun/bin/bun",
+      "args": ["run", "/path/to/promptty/mcp-server/index.ts"],
+      "env": {
+        "PROMPTTY_CALLBACK_URL": "http://127.0.0.1:3001"
+      }
+    }
+  }
+}
+```
+
+Adjust paths to match your Bun and Promptty installation locations.
+
 ## Troubleshooting
 
 ### "Slack adapter not configured"
@@ -355,6 +471,17 @@ Example with keywords:
 ### Service won't start
 - Check logs: `journalctl --user -u promptty-<instance> -f`
 - Verify Bun is in PATH for systemd: may need full path in service file
+
+### MCP server not working / No progress updates
+- Verify working directory is configured: `promptty config show <instance>`
+- Check MCP installation status: `promptty mcp status <instance>`
+- Ensure callback port matches: check `CALLBACK_PORT` in `.env`
+- Verify `.mcp.json` exists in the working directory
+- Check that Bun path in `.mcp.json` is correct (run `which bun`)
+
+### "No working directories configured"
+- Add `workingDirectory` to your config.json defaults or channel config
+- The directory must exist on disk
 
 ## Development
 
