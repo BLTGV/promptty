@@ -6,7 +6,13 @@ import { createChildLogger } from '../utils/logger.js';
 const logger = createChildLogger('executor');
 
 const DEFAULT_TIMEOUT = 600000; // 10 minutes
-const DEFAULT_ALLOWED_TOOLS = ['Bash', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'WebSearch', 'WebFetch'];
+const DEFAULT_ALLOWED_TOOLS = [
+  'Bash', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'WebSearch', 'WebFetch',
+  // MCP tools for Promptty
+  'mcp__promptty__post_update',
+  'mcp__promptty__send_message',
+  'mcp__promptty__list_channels',
+];
 
 /**
  * Build a context string that informs Claude about the conversation source
