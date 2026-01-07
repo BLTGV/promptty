@@ -6,7 +6,7 @@ import { createChildLogger } from '../utils/logger.js';
 const logger = createChildLogger('executor');
 
 const DEFAULT_TIMEOUT = 600000; // 10 minutes
-const DEFAULT_ALLOWED_TOOLS = ['Bash', 'Read', 'Write', 'Edit', 'Glob', 'Grep'];
+const DEFAULT_ALLOWED_TOOLS = ['Bash', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'WebSearch', 'WebFetch'];
 
 export class ClaudeExecutor {
   private activeProcesses: Map<string, Subprocess> = new Map();
@@ -162,15 +162,15 @@ export class ClaudeExecutor {
       args.push('--resume', options.sessionId);
     }
 
-    // Skip permission prompts (runs without asking)
+    // Add allowed tools (pre-approved tools)
+    const tools = options.allowedTools ?? DEFAULT_ALLOWED_TOOLS;
+    if (tools.length > 0) {
+      args.push('--allowedTools', tools.join(','));
+    }
+
+    // Skip permission prompts (runs without asking for allowed tools)
     if (options.skipPermissions) {
       args.push('--dangerously-skip-permissions');
-    } else {
-      // Add allowed tools (pre-approved tools)
-      const tools = options.allowedTools ?? DEFAULT_ALLOWED_TOOLS;
-      if (tools.length > 0) {
-        args.push('--allowedTools', tools.join(','));
-      }
     }
 
     // Add system prompt if provided
