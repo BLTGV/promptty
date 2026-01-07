@@ -34,6 +34,7 @@ _promptty() {
                 'config:Manage instance configuration'
                 'service:Manage systemd service for an instance'
                 'mcp:Manage MCP server for an instance'
+                'completions:Install or show shell completions'
                 'help:Display help information'
             )
             _describe 'command' commands
@@ -76,6 +77,17 @@ _promptty() {
                         'uninstall:Remove MCP server from working directories'
                     )
                     _describe 'subcommand' mcp_subcommands
+                    ;;
+                completions)
+                    local -a completions_options
+                    completions_options=(
+                        '--bash:Use bash completions'
+                        '--zsh:Use zsh completions'
+                        '--fish:Use fish completions'
+                        '--print:Print completion script to stdout'
+                        '--install:Install completions to shell config'
+                    )
+                    _describe 'option' completions_options
                     ;;
             esac
             ;;

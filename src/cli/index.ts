@@ -6,6 +6,7 @@ import { configCommand } from './commands/config.js';
 import { serviceCommand } from './commands/service.js';
 import { listCommand } from './commands/list.js';
 import { mcpCommand } from './commands/mcp.js';
+import { completionsCommand } from './commands/completions.js';
 
 const program = new Command();
 
@@ -20,5 +21,6 @@ program.addCommand(listCommand);
 program.addCommand(configCommand);
 program.addCommand(serviceCommand);
 program.addCommand(mcpCommand);
+program.addCommand(completionsCommand);
 
 program.parse();

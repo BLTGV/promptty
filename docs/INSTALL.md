@@ -97,29 +97,26 @@ bun run src/cli/index.ts serve <instance>
 
 Enable tab completion for promptty commands and instance names.
 
-**Bash:**
+**Quick Install (auto-detects your shell):**
 ```bash
-# Add to ~/.bashrc
-source /path/to/promptty/completions/promptty.bash
+# Show installation instructions for your shell
+promptty completions
 
-# Or copy to system completions
-sudo cp /path/to/promptty/completions/promptty.bash /etc/bash_completion.d/promptty
+# Auto-install to your shell config
+promptty completions --install
 ```
 
-**Zsh:**
-```bash
-# Option 1: Source directly in ~/.zshrc
-source /path/to/promptty/completions/promptty.zsh
+**Manual Installation:**
 
-# Option 2: Add to fpath (before compinit)
-fpath=(/path/to/promptty/completions $fpath)
-autoload -Uz compinit && compinit
-```
-
-**Fish:**
 ```bash
-# Copy to fish completions directory
-cp /path/to/promptty/completions/promptty.fish ~/.config/fish/completions/
+# Bash - add to ~/.bashrc
+promptty completions --bash --print >> ~/.bashrc
+
+# Zsh - add to ~/.zshrc
+promptty completions --zsh --print >> ~/.zshrc
+
+# Fish - install to completions directory
+promptty completions --fish --install
 ```
 
 After installation, you can tab-complete:

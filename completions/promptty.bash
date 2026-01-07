@@ -14,10 +14,11 @@ _promptty() {
     local cur prev words cword
     _init_completion || return
 
-    local commands="serve init list config service mcp help"
+    local commands="serve init list config service mcp completions help"
     local config_subcommands="show channel credential"
     local service_subcommands="install uninstall enable disable start stop restart status logs list"
     local mcp_subcommands="install status uninstall"
+    local completions_options="--bash --zsh --fish --print --install"
 
     case "${cword}" in
         1)
@@ -36,6 +37,9 @@ _promptty() {
                     ;;
                 mcp)
                     COMPREPLY=($(compgen -W "${mcp_subcommands}" -- "${cur}"))
+                    ;;
+                completions)
+                    COMPREPLY=($(compgen -W "${completions_options}" -- "${cur}"))
                     ;;
                 list|help)
                     COMPREPLY=()

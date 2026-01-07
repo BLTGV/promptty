@@ -48,6 +48,7 @@ complete -c promptty -n __promptty_needs_command -a list -d "List all Promptty i
 complete -c promptty -n __promptty_needs_command -a config -d "Manage instance configuration"
 complete -c promptty -n __promptty_needs_command -a service -d "Manage systemd service for an instance"
 complete -c promptty -n __promptty_needs_command -a mcp -d "Manage MCP server for an instance"
+complete -c promptty -n __promptty_needs_command -a completions -d "Install or show shell completions"
 complete -c promptty -n __promptty_needs_command -a help -d "Display help information"
 
 # serve <instance>
@@ -98,3 +99,10 @@ complete -c promptty -n "__promptty_using_command mcp; and __promptty_needs_subc
 complete -c promptty -n "__promptty_using_subcommand mcp install; and __promptty_needs_instance" -a "(__promptty_instances)" -d "Instance"
 complete -c promptty -n "__promptty_using_subcommand mcp status; and __promptty_needs_instance" -a "(__promptty_instances)" -d "Instance"
 complete -c promptty -n "__promptty_using_subcommand mcp uninstall; and __promptty_needs_instance" -a "(__promptty_instances)" -d "Instance"
+
+# completions options
+complete -c promptty -n "__promptty_using_command completions" -l bash -d "Use bash completions"
+complete -c promptty -n "__promptty_using_command completions" -l zsh -d "Use zsh completions"
+complete -c promptty -n "__promptty_using_command completions" -l fish -d "Use fish completions"
+complete -c promptty -n "__promptty_using_command completions" -l print -d "Print completion script to stdout"
+complete -c promptty -n "__promptty_using_command completions" -l install -d "Install completions to shell config"
