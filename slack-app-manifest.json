@@ -33,6 +33,7 @@
         "channels:read",
         "groups:read",
         "im:read",
+        "im:write",
         "mpim:read",
         "users:read",
         "reactions:write",

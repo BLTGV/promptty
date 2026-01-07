@@ -56,6 +56,7 @@ oauth_config:
       - channels:read           # View public channel info
       - groups:read             # View private channel info
       - im:read                 # View DM info
+      - im:write                # Send DMs to users
       - mpim:read               # View group DM info
       - users:read              # View user info (names, avatars)
 
