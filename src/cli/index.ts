@@ -4,6 +4,7 @@ import { serveCommand } from './commands/serve.js';
 import { initCommand } from './commands/init.js';
 import { configCommand } from './commands/config.js';
 import { serviceCommand } from './commands/service.js';
+import { listCommand } from './commands/list.js';
 
 const program = new Command();
 
@@ -14,6 +15,7 @@ program
 
 program.addCommand(serveCommand);
 program.addCommand(initCommand);
+program.addCommand(listCommand);
 program.addCommand(configCommand);
 program.addCommand(serviceCommand);
 
