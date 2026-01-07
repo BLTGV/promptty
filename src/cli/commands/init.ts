@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { writeFileSync } from 'fs';
+import { writeFileSync, readFileSync, existsSync, copyFileSync } from 'fs';
 import {
   validateInstanceName,
   instanceExists,
@@ -13,7 +13,9 @@ export const initCommand = new Command('init')
   .argument('<name>', 'Instance name (slug, e.g., "acme-corp")')
   .option('-f, --force', 'Overwrite existing instance')
   .option('--no-interactive', 'Skip interactive setup (create empty config)')
-  .action(async (name: string, options: { force?: boolean; interactive?: boolean }) => {
+  .option('--config <path>', 'Path to config.json file to import')
+  .option('--env <path>', 'Path to .env file to import')
+  .action(async (name: string, options: { force?: boolean; interactive?: boolean; config?: string; env?: string }) => {
     // Validate instance name
     const validation = validateInstanceName(name);
     if (!validation.valid) {
@@ -32,6 +34,17 @@ export const initCommand = new Command('init')
     const paths = createInstanceDirs(name);
     console.log(`Creating instance: ${name}`);
     console.log(`Directory: ${paths.root}`);
+
+    // Handle --config and --env file imports
+    if (options.config || options.env) {
+      importConfigFiles(paths, options.config, options.env);
+      console.log('\nInstance created from provided files.');
+      console.log('\nNext steps:');
+      console.log(`  1. Review config:        promptty config show ${name}`);
+      console.log(`  2. Start the server:     promptty serve ${name}`);
+      console.log(`  3. Install as service:   promptty service install ${name}`);
+      return;
+    }
 
     // Non-interactive mode: create empty config
     if (options.interactive === false) {
@@ -153,4 +166,68 @@ function writeConfigFiles(
   envLines.push('CALLBACK_PORT=3001');
 
   writeFileSync(paths.env, envLines.join('\n'));
+}
+
+function importConfigFiles(
+  paths: ReturnType<typeof resolveInstance>,
+  configPath?: string,
+  envPath?: string
+): void {
+  // Import config.json if provided
+  if (configPath) {
+    if (!existsSync(configPath)) {
+      console.error(`Config file not found: ${configPath}`);
+      process.exit(1);
+    }
+
+    // Validate JSON before copying
+    try {
+      const content = readFileSync(configPath, 'utf-8');
+      JSON.parse(content); // Validate it's valid JSON
+      copyFileSync(configPath, paths.config);
+      console.log(`Imported config from: ${configPath}`);
+    } catch (error) {
+      console.error(`Invalid JSON in config file: ${configPath}`);
+      process.exit(1);
+    }
+  } else {
+    // Create default config if not provided
+    const config = {
+      defaults: {
+        command: 'claude',
+        sessionTTL: 14400000,
+      },
+      channels: {},
+    };
+    writeFileSync(paths.config, JSON.stringify(config, null, 2));
+  }
+
+  // Import .env if provided
+  if (envPath) {
+    if (!existsSync(envPath)) {
+      console.error(`Env file not found: ${envPath}`);
+      process.exit(1);
+    }
+    copyFileSync(envPath, paths.env);
+    console.log(`Imported .env from: ${envPath}`);
+  } else {
+    // Create empty .env template if not provided
+    const envTemplate = `# Promptty Instance Configuration
+# Uncomment and fill in the credentials for your platform(s)
+
+# Slack Configuration
+# SLACK_APP_TOKEN=xapp-1-...
+# SLACK_BOT_TOKEN=xoxb-...
+# SLACK_SIGNING_SECRET=
+
+# Teams Configuration
+# TEAMS_APP_ID=
+# TEAMS_APP_PASSWORD=
+
+# General Settings
+LOG_LEVEL=info
+CALLBACK_PORT=3001
+`;
+    writeFileSync(paths.env, envTemplate);
+  }
 }
