@@ -93,6 +93,40 @@ Without linking, prefix commands with `bun run src/cli/index.ts`:
 bun run src/cli/index.ts serve <instance>
 ```
 
+### Shell Completions (Optional)
+
+Enable tab completion for promptty commands and instance names.
+
+**Bash:**
+```bash
+# Add to ~/.bashrc
+source /path/to/promptty/completions/promptty.bash
+
+# Or copy to system completions
+sudo cp /path/to/promptty/completions/promptty.bash /etc/bash_completion.d/promptty
+```
+
+**Zsh:**
+```bash
+# Option 1: Source directly in ~/.zshrc
+source /path/to/promptty/completions/promptty.zsh
+
+# Option 2: Add to fpath (before compinit)
+fpath=(/path/to/promptty/completions $fpath)
+autoload -Uz compinit && compinit
+```
+
+**Fish:**
+```bash
+# Copy to fish completions directory
+cp /path/to/promptty/completions/promptty.fish ~/.config/fish/completions/
+```
+
+After installation, you can tab-complete:
+- Commands: `promptty ser<TAB>` → `promptty serve`
+- Subcommands: `promptty service st<TAB>` → `promptty service start` or `status`
+- Instance names: `promptty serve my-<TAB>` → `promptty serve my-instance`
+
 ## 4. Create a Slack App
 
 1. Go to https://api.slack.com/apps
