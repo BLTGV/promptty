@@ -160,7 +160,7 @@ export class ClaudeExecutor {
               events.push(event);
 
               // Log events by type for debugging
-              if (event.type === 'assistant') {
+              if (event.type === 'assistant' && event.message?.message?.content) {
                 for (const block of event.message.message.content) {
                   if (block.type === 'tool_use') {
                     logger.debug({
@@ -171,12 +171,12 @@ export class ClaudeExecutor {
                   } else if (block.type === 'tool_result') {
                     logger.debug({
                       toolId: block.tool_use_id,
-                      resultLength: block.content.length,
+                      resultLength: block.content?.length ?? 0,
                     }, 'Tool result');
                   } else if (block.type === 'text') {
                     logger.debug({
-                      textLength: block.text.length,
-                      preview: block.text.substring(0, 100),
+                      textLength: block.text?.length ?? 0,
+                      preview: block.text?.substring(0, 100) ?? '',
                     }, 'Claude text response');
                   }
                 }
