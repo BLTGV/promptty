@@ -13,10 +13,19 @@ export default defineConfig({
       logo: {
         src: './src/assets/logo.svg',
       },
+      expressiveCode: {
+        themes: ['github-dark', 'github-light'],
+        styleOverrides: {
+          borderRadius: '0.5rem',
+        },
+      },
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/BLTGV/promptty' },
       ],
       customCss: ['./src/styles/global.css'],
+      editLink: {
+        baseUrl: 'https://github.com/BLTGV/promptty/edit/main/website/',
+      },
       sidebar: [
         {
           label: 'Getting Started',

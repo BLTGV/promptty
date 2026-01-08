@@ -1,52 +1,183 @@
 @import "tailwindcss";
 
-/* Custom theme colors for Promptty */
-@theme {
-  --color-navy: #1a1f36;
-  --color-navy-light: #2d3348;
-  --color-emerald: #10b981;
-  --color-emerald-light: #34d399;
-  --color-emerald-dark: #059669;
-}
+/*
+ * Promptty Theme - Navy + Emerald
+ *
+ * Color System based on Tailwind's Slate and Emerald palettes
+ * See COLOR-SYSTEM.md for full documentation
+ *
+ * IMPORTANT: Starlight's naming is semantic, not literal:
+ * - --sl-color-white = "bright" color (light text in dark mode, dark text in light mode)
+ * - --sl-color-black = "background" color (dark bg in dark mode, light bg in light mode)
+ * - Gray scale follows same inversion pattern
+ */
 
-/* Starlight theme customization */
+/* ===========================================
+   BASE STYLES (both themes)
+   =========================================== */
+
 :root {
-  --sl-color-accent-low: #0d3d2e;
-  --sl-color-accent: #10b981;
-  --sl-color-accent-high: #34d399;
-  --sl-color-white: #ffffff;
-  --sl-color-gray-1: #f1f5f9;
-  --sl-color-gray-2: #e2e8f0;
-  --sl-color-gray-3: #94a3b8;
-  --sl-color-gray-4: #64748b;
-  --sl-color-gray-5: #475569;
-  --sl-color-gray-6: #1e293b;
-  --sl-color-black: #0f172a;
+  /* Accent colors - Emerald */
+  --sl-color-accent-low: #064e3b;   /* Emerald 900 */
+  --sl-color-accent: #10b981;       /* Emerald 500 */
+  --sl-color-accent-high: #34d399;  /* Emerald 400 */
+
+  /* Typography */
+  --sl-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --sl-font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, Monaco, monospace;
 }
 
-:root[data-theme='dark'] {
-  --sl-color-accent-low: #0d3d2e;
-  --sl-color-accent: #10b981;
-  --sl-color-accent-high: #34d399;
-  --sl-color-white: #0f172a;
-  --sl-color-gray-1: #1e293b;
-  --sl-color-gray-2: #334155;
-  --sl-color-gray-3: #475569;
-  --sl-color-gray-4: #94a3b8;
-  --sl-color-gray-5: #cbd5e1;
-  --sl-color-gray-6: #e2e8f0;
-  --sl-color-black: #ffffff;
-}
+/* ===========================================
+   DARK THEME (default)
+   =========================================== */
 
-/* Custom font stack */
 :root {
-  --sl-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-  --sl-font-mono: 'JetBrains Mono', 'Fira Code', Consolas, Monaco, monospace;
+  /* Semantic bright/dark colors */
+  --sl-color-white: #f1f5f9;        /* Slate 100 - bright text */
+  --sl-color-black: #0f172a;        /* Slate 900 - page background */
+
+  /* Gray scale: 1=lightest → 6=darkest (for dark mode) */
+  --sl-color-gray-1: #e2e8f0;       /* Slate 200 */
+  --sl-color-gray-2: #cbd5e1;       /* Slate 300 - body text */
+  --sl-color-gray-3: #94a3b8;       /* Slate 400 - muted text */
+  --sl-color-gray-4: #64748b;       /* Slate 500 */
+  --sl-color-gray-5: #475569;       /* Slate 600 - borders */
+  --sl-color-gray-6: #1e293b;       /* Slate 800 - nav/sidebar bg */
+
+  /* Semantic backgrounds */
+  --sl-color-bg: var(--sl-color-black);
+  --sl-color-bg-nav: var(--sl-color-gray-6);
+  --sl-color-bg-sidebar: var(--sl-color-gray-6);
+  --sl-color-bg-inline-code: #334155; /* Slate 700 */
+
+  /* Borders */
+  --sl-color-hairline-light: #334155; /* Slate 700 */
+  --sl-color-hairline: var(--sl-color-gray-5);
+
+  /* Text */
+  --sl-color-text: var(--sl-color-gray-2);
+  --sl-color-text-accent: var(--sl-color-accent-high);
 }
 
-/* Landing page specific styles */
+/* ===========================================
+   LIGHT THEME
+   =========================================== */
+
+:root[data-theme='light'] {
+  /* Semantic bright/dark colors - INVERTED */
+  --sl-color-white: #0f172a;        /* Slate 900 - dark text */
+  --sl-color-black: #ffffff;        /* White - page background */
+
+  /* Gray scale: 1=darkest → 6=lightest (for light mode) */
+  --sl-color-gray-1: #1e293b;       /* Slate 800 */
+  --sl-color-gray-2: #334155;       /* Slate 700 - body text */
+  --sl-color-gray-3: #475569;       /* Slate 600 - muted text */
+  --sl-color-gray-4: #64748b;       /* Slate 500 */
+  --sl-color-gray-5: #cbd5e1;       /* Slate 300 - borders */
+  --sl-color-gray-6: #f1f5f9;       /* Slate 100 - nav/sidebar bg */
+  --sl-color-gray-7: #f8fafc;       /* Slate 50 - alternate bg */
+
+  /* Semantic backgrounds */
+  --sl-color-bg: var(--sl-color-black);
+  --sl-color-bg-nav: var(--sl-color-gray-7);
+  --sl-color-bg-sidebar: var(--sl-color-gray-7);
+  --sl-color-bg-inline-code: var(--sl-color-gray-6);
+
+  /* Borders */
+  --sl-color-hairline-light: #e2e8f0; /* Slate 200 */
+  --sl-color-hairline: var(--sl-color-gray-5);
+
+  /* Accent - use darker variants for better contrast */
+  --sl-color-accent-low: #d1fae5;   /* Emerald 100 */
+  --sl-color-accent: #10b981;       /* Emerald 500 */
+  --sl-color-accent-high: #047857;  /* Emerald 700 */
+
+  /* Text */
+  --sl-color-text: var(--sl-color-gray-2);
+  --sl-color-text-accent: #059669;  /* Emerald 600 */
+}
+
+/* ===========================================
+   COMPONENT FIXES
+   =========================================== */
+
+/*
+ * Sidebar Navigation
+ * Starlight sidebar uses various gray variables. We need to ensure
+ * proper contrast for inactive links.
+ */
+
+/* Dark mode sidebar */
+:root .sidebar-content a {
+  color: var(--sl-color-gray-3);
+}
+
+:root .sidebar-content a:hover {
+  color: var(--sl-color-gray-1);
+}
+
+/* Light mode sidebar */
+:root[data-theme='light'] .sidebar-content a {
+  color: var(--sl-color-gray-3);
+}
+
+:root[data-theme='light'] .sidebar-content a:hover {
+  color: var(--sl-color-gray-1);
+}
+
+/*
+ * Theme Selector
+ * The select element inside starlight-theme-select needs explicit color
+ */
+
+starlight-theme-select select {
+  color: var(--sl-color-gray-2);
+}
+
+/*
+ * Search Button
+ * Ensure proper contrast for the search trigger button
+ */
+
+button[data-open-modal] {
+  background-color: var(--sl-color-bg-nav);
+  border-color: var(--sl-color-hairline);
+  color: var(--sl-color-gray-3);
+}
+
+button[data-open-modal]:hover {
+  border-color: var(--sl-color-accent);
+}
+
+/*
+ * Hero Section (Landing Page)
+ * Ensure tagline text has proper contrast
+ */
+
+.hero .tagline {
+  color: var(--sl-color-gray-3);
+}
+
+/*
+ * Right Sidebar (Table of Contents)
+ * Ensure TOC links have proper contrast
+ */
+
+.right-sidebar a {
+  color: var(--sl-color-gray-3);
+}
+
+.right-sidebar a:hover,
+.right-sidebar a[aria-current="true"] {
+  color: var(--sl-color-text-accent);
+}
+
+/* ===========================================
+   LANDING PAGE STYLES
+   =========================================== */
+
 .hero-gradient {
-  background: linear-gradient(135deg, var(--color-navy) 0%, #0f172a 100%);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 }
 
 .feature-card {
@@ -54,7 +185,10 @@
   @apply hover:scale-[1.02] hover:shadow-lg;
 }
 
-/* Terminal animation */
+/* ===========================================
+   ANIMATIONS
+   =========================================== */
+
 @keyframes blink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }
@@ -64,7 +198,6 @@
   animation: blink 1s infinite;
 }
 
-/* Fade in animation */
 @keyframes fadeInUp {
   from {
     opacity: 0;

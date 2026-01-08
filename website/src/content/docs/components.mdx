@@ -1,0 +1,402 @@
+---
+title: Component Showcase
+description: Visual reference for all UI components in both themes
+sidebar:
+  hidden: true
+---
+
+import { Card, CardGrid, LinkCard, Aside, Tabs, TabItem, Badge, Steps, FileTree, Icon } from '@astrojs/starlight/components';
+
+# Component Showcase
+
+Use the theme toggle in the top right to compare light and dark modes.
+
+---
+
+## Typography
+
+### Headings
+
+# Heading 1
+## Heading 2
+### Heading 3
+#### Heading 4
+##### Heading 5
+
+### Body Text
+
+This is regular body text. It should have good contrast against the page background in both themes. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+This is **bold text** and this is *italic text*. Here's a [link to somewhere](/promptty/installation/).
+
+### Muted/Secondary Text
+
+<p class="sl-text-sm" style="color: var(--sl-color-gray-3);">
+This is muted text using gray-3. It should still be readable but less prominent than body text.
+</p>
+
+---
+
+## Cards
+
+### Standard Card Grid
+
+<CardGrid>
+  <Card title="Card Title" icon="rocket">
+    Card description text. This demonstrates the standard card component with an icon.
+  </Card>
+  <Card title="Another Card" icon="pencil">
+    Another card with different content. Cards should have consistent backgrounds.
+  </Card>
+</CardGrid>
+
+### Link Cards
+
+<CardGrid>
+  <LinkCard
+    title="Link Card"
+    description="This card is clickable and links somewhere"
+    href="/promptty/installation/"
+  />
+  <LinkCard
+    title="External Link"
+    description="Links can go to external sites too"
+    href="https://github.com/BLTGV/promptty"
+  />
+</CardGrid>
+
+### Stagger Cards (Different Colors)
+
+<CardGrid stagger>
+  <Card title="First Card" icon="star">
+    Stagger mode gives cards alternating accent colors.
+  </Card>
+  <Card title="Second Card" icon="heart">
+    This helps break up visual monotony.
+  </Card>
+  <Card title="Third Card" icon="approve-check">
+    Each card gets a unique accent.
+  </Card>
+  <Card title="Fourth Card" icon="setting">
+    Great for feature highlights.
+  </Card>
+</CardGrid>
+
+---
+
+## Asides (Callouts)
+
+<Aside>
+Default aside without a type. Used for general supplementary information.
+</Aside>
+
+<Aside type="note" title="Note">
+This is a note aside. Use it for additional context or information.
+</Aside>
+
+<Aside type="tip" title="Tip">
+This is a tip aside. Use it for helpful suggestions or best practices.
+</Aside>
+
+<Aside type="caution" title="Caution">
+This is a caution aside. Use it to warn about potential issues.
+</Aside>
+
+<Aside type="danger" title="Danger">
+This is a danger aside. Use it for critical warnings.
+</Aside>
+
+---
+
+## Badges
+
+<p>
+  <Badge text="Default" />
+  <Badge text="Note" variant="note" />
+  <Badge text="Tip" variant="tip" />
+  <Badge text="Caution" variant="caution" />
+  <Badge text="Danger" variant="danger" />
+  <Badge text="Success" variant="success" />
+</p>
+
+### Badge Sizes
+
+<p>
+  <Badge text="Small" size="small" />
+  <Badge text="Medium" size="medium" />
+  <Badge text="Large" size="large" />
+</p>
+
+---
+
+## Tabs
+
+<Tabs>
+  <TabItem label="Tab One">
+    Content for the first tab. Tabs help organize related content.
+  </TabItem>
+  <TabItem label="Tab Two">
+    Content for the second tab. Each tab can contain any markdown.
+  </TabItem>
+  <TabItem label="Tab Three">
+    Content for the third tab with some code:
+    ```bash
+    echo "Hello from tab three"
+    ```
+  </TabItem>
+</Tabs>
+
+### Tabs with Icons
+
+<Tabs>
+  <TabItem label="macOS" icon="apple">
+    Instructions for macOS users.
+  </TabItem>
+  <TabItem label="Linux" icon="linux">
+    Instructions for Linux users.
+  </TabItem>
+  <TabItem label="Windows" icon="seti:windows">
+    Instructions for Windows users.
+  </TabItem>
+</Tabs>
+
+---
+
+## Steps
+
+<Steps>
+
+1. **First Step**
+
+   Description of what to do in the first step. Can include code:
+
+   ```bash
+   npm install something
+   ```
+
+2. **Second Step**
+
+   Description of the second step with more details.
+
+3. **Third Step**
+
+   Final step with conclusion.
+
+</Steps>
+
+---
+
+## File Tree
+
+<FileTree>
+- src/
+  - components/
+    - Header.astro
+    - Footer.astro
+  - pages/
+    - index.astro
+    - about.astro
+  - styles/
+    - global.css
+- package.json
+- astro.config.mjs
+</FileTree>
+
+---
+
+## Code Blocks
+
+### Inline Code
+
+Use the `bun dev` command to start the development server. Configure options in `config.json`.
+
+### Code Block (No Language)
+
+```
+Plain text code block without syntax highlighting.
+Useful for output or generic content.
+```
+
+### Code Block (Bash)
+
+```bash
+# Install dependencies
+bun install
+
+# Start development server
+bun dev
+
+# Build for production
+bun run build
+```
+
+### Code Block (TypeScript)
+
+```typescript
+interface Config {
+  port: number;
+  host: string;
+  debug: boolean;
+}
+
+const config: Config = {
+  port: 3000,
+  host: 'localhost',
+  debug: true,
+};
+
+export function getConfig(): Config {
+  return config;
+}
+```
+
+### Code Block (JSON)
+
+```json
+{
+  "name": "promptty",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "build": "bun build src/index.ts"
+  }
+}
+```
+
+### Code with Title and Line Highlighting
+
+```typescript title="src/handler.ts" {3-5}
+export async function handleMessage(message: string) {
+  // These lines are highlighted
+  const processed = message.trim();
+  const response = await generateResponse(processed);
+  return response;
+}
+```
+
+---
+
+## Lists
+
+### Unordered List
+
+- First item in the list
+- Second item with more text that wraps to show line height
+- Third item
+  - Nested item one
+  - Nested item two
+- Fourth item
+
+### Ordered List
+
+1. First numbered item
+2. Second numbered item
+3. Third numbered item
+   1. Nested numbered item
+   2. Another nested item
+4. Fourth numbered item
+
+### Task List
+
+- [x] Completed task
+- [x] Another completed task
+- [ ] Pending task
+- [ ] Another pending task
+
+---
+
+## Tables
+
+| Feature | Slack | Teams |
+|---------|-------|-------|
+| Markdown | mrkdwn | Adaptive Cards |
+| Threading | Native | Native |
+| Reactions | Full | Limited |
+| File Sharing | Yes | Yes |
+
+---
+
+## Blockquotes
+
+> This is a blockquote. It should have a distinct visual style that separates it from regular text.
+>
+> It can span multiple paragraphs and should maintain good readability.
+
+---
+
+## Horizontal Rules
+
+Content above the rule.
+
+---
+
+Content below the rule.
+
+---
+
+## Links
+
+- [Internal link to Installation](/promptty/installation/)
+- [External link to GitHub](https://github.com/BLTGV/promptty)
+- [Link with title](https://example.com "Example Site")
+
+---
+
+## Images
+
+The logo should render correctly in both themes:
+
+![Promptty Logo](/promptty/logo.svg)
+
+---
+
+## Form Elements (for reference)
+
+These are styled by Starlight for search and other UI:
+
+### Search Bar Reference
+
+The search bar in the header demonstrates:
+- Input field styling
+- Placeholder text
+- Border colors
+- Focus states
+
+### Theme Selector Reference
+
+The theme selector dropdown demonstrates:
+- Select element styling
+- Option text colors
+- Dropdown behavior
+
+---
+
+## Color Swatches
+
+### Gray Scale (Theme-Aware)
+
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin: 1rem 0;">
+  <div style="padding: 1rem; background: var(--sl-color-gray-1); color: var(--sl-color-gray-6); border-radius: 0.5rem;">Gray 1</div>
+  <div style="padding: 1rem; background: var(--sl-color-gray-2); color: var(--sl-color-gray-6); border-radius: 0.5rem;">Gray 2</div>
+  <div style="padding: 1rem; background: var(--sl-color-gray-3); color: var(--sl-color-black); border-radius: 0.5rem;">Gray 3</div>
+  <div style="padding: 1rem; background: var(--sl-color-gray-4); color: var(--sl-color-black); border-radius: 0.5rem;">Gray 4</div>
+  <div style="padding: 1rem; background: var(--sl-color-gray-5); color: var(--sl-color-white); border-radius: 0.5rem;">Gray 5</div>
+  <div style="padding: 1rem; background: var(--sl-color-gray-6); color: var(--sl-color-white); border-radius: 0.5rem;">Gray 6</div>
+</div>
+
+### Accent Colors
+
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin: 1rem 0;">
+  <div style="padding: 1rem; background: var(--sl-color-accent-low); color: var(--sl-color-accent-high); border-radius: 0.5rem;">Accent Low</div>
+  <div style="padding: 1rem; background: var(--sl-color-accent); color: var(--sl-color-black); border-radius: 0.5rem;">Accent</div>
+  <div style="padding: 1rem; background: var(--sl-color-accent-high); color: var(--sl-color-black); border-radius: 0.5rem;">Accent High</div>
+</div>
+
+### Semantic Colors
+
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; margin: 1rem 0;">
+  <div style="padding: 1rem; background: var(--sl-color-bg); border: 1px solid var(--sl-color-hairline); border-radius: 0.5rem;">Page Background (--sl-color-bg)</div>
+  <div style="padding: 1rem; background: var(--sl-color-bg-nav); border: 1px solid var(--sl-color-hairline); border-radius: 0.5rem;">Nav Background (--sl-color-bg-nav)</div>
+  <div style="padding: 1rem; background: var(--sl-color-bg-sidebar); border: 1px solid var(--sl-color-hairline); border-radius: 0.5rem;">Sidebar Background (--sl-color-bg-sidebar)</div>
+  <div style="padding: 1rem; background: var(--sl-color-black); color: var(--sl-color-white); border-radius: 0.5rem;">Black (cards bg) / White (card titles)</div>
+</div>
